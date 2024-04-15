@@ -25,7 +25,7 @@ steps:
          '--update-env-vars=TRIGGER_OPERATION=${_TRIGGER_OPERATION}',
          #'--update-env-vars=GIT_COMMIT_HASH=${SHORT_SHA}',
          #'--update-env-vars=GIT_VERSION_TAG=${TAG_NAME}',
-         '--update-env-var=PROJECT_ID=${PROJECT_ID}',
+         '--update-env-vars=PROJECT_ID=${PROJECT_ID}',
          '--update-labels=trigger-operation=${_OPERATION_SHORT_NAME}',
          '--update-labels=trigger-resource=${_TRIGGER_RESOURCE}',
          # Fix for logging issue: https://issuetracker.google.com/issues/155215191#comment112
