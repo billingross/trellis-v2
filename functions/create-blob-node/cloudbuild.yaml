@@ -17,8 +17,9 @@ steps:
          '--region=us-west2',
          '--gen2',
          '--trigger-location=us-west2',
-         '--trigger-resource=${_TRIGGER_RESOURCE}',
-         '--trigger-event=google.storage.object.${_TRIGGER_OPERATION}',
+         '--trigger-bucket=${_TRIGGER_BUCKET}'
+         #'--trigger-resource=${_TRIGGER_RESOURCE}',
+         #'--trigger-event=google.storage.object.${_TRIGGER_OPERATION}',
          '--update-env-vars=CREDENTIALS_BUCKET=${_CREDENTIALS_BUCKET}',
          '--update-env-vars=CREDENTIALS_BLOB=${_CREDENTIALS_BLOB}',
          '--update-env-vars=ENVIRONMENT=${_ENVIRONMENT}',
