@@ -14,6 +14,8 @@ steps:
          '--max-instances=100',
          '--entry-point=create_node_query',
          '--runtime=python312',
+         '--gen2',
+         '--trigger-location=us-west2',
          '--trigger-resource=${_TRIGGER_RESOURCE}',
          '--trigger-event=google.storage.object.${_TRIGGER_OPERATION}',
          '--update-env-vars=CREDENTIALS_BUCKET=${_CREDENTIALS_BUCKET}',
