@@ -14,6 +14,7 @@ steps:
          '--max-instances=100',
          '--entry-point=create_node_query',
          '--runtime=python312',
+         '--region=us-west2',
          '--gen2',
          '--trigger-location=us-west2',
          '--trigger-resource=${_TRIGGER_RESOURCE}',
