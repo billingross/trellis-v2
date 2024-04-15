@@ -13,7 +13,7 @@ steps:
          '--memory=256MB',
          '--max-instances=100',
          '--entry-point=create_node_query',
-         '--runtime=python37',
+         '--runtime=python312',
          '--trigger-resource=${_TRIGGER_RESOURCE}',
          '--trigger-event=google.storage.object.${_TRIGGER_OPERATION}',
          '--update-env-vars=CREDENTIALS_BUCKET=${_CREDENTIALS_BUCKET}',
