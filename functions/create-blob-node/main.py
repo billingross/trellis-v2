@@ -26,11 +26,14 @@ if ENVIRONMENT == 'google-cloud':
     # use Python's standard logging library to send logs to GCP
     import logging
 
-    FUNCTION_NAME = os.environ['FUNCTION_NAME']
+    #FUNCTION_NAME = os.environ['FUNCTION_NAME']
+    FUNCTION_NAME = os.environ['K_SERVICE']
     TRIGGER_OPERATION = os.environ['TRIGGER_OPERATION']
-    GIT_COMMIT_HASH = os.environ['GIT_COMMIT_HASH']
-    GIT_VERSION_TAG = os.environ['GIT_VERSION_TAG']
-    GCP_PROJECT = os.environ['GCP_PROJECT']
+    #TRIGGER_OPERATION = os.environ['FUNCTION_SIGNATURE_TYPE']
+    #GIT_COMMIT_HASH = os.environ['GIT_COMMIT_HASH']
+    #GIT_VERSION_TAG = os.environ['GIT_VERSION_TAG']
+    #GCP_PROJECT = os.environ['GCP_PROJECT']
+    PROJECT_ID = os.environ['PROJECT_ID']
 
     config_doc = storage.Client() \
                 .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
@@ -81,7 +84,8 @@ def clean_metadata_dict(raw_dict):
 
     return clean_dict
 
-def get_name_fields(event_name, event_bucket, commit_hash, version_tag):
+#def get_name_fields(event_name, event_bucket, commit_hash, version_tag):
+def get_name_fields(event_name, event_bucket):
     """(pbilling 200226): This should probably be moved to config file.
 
     Example input:
@@ -106,8 +110,8 @@ def get_name_fields(event_name, event_bucket, commit_hash, version_tag):
                    "name": name_elements[0],
                    "extension": '.'.join(name_elements[1:]),
                    "filetype": name_elements[-1],
-                   "gitCommitHash": commit_hash,
-                   "gitVersionTag": version_tag,
+                   #"gitCommitHash": commit_hash,
+                   #"gitVersionTag": version_tag,
                    "uri" : "gs://" + event_bucket + "/" + event_name,
     }
     return name_fields
@@ -273,7 +277,7 @@ def create_node_query(event, context, test=False):
         # Use bucket name to determine which config file should be used
         # to parse object metadata.
         # (Module name does not include project prefix)
-        pattern = f"{GCP_PROJECT}-(?P<suffix>\w+(?:-\w+)+)"
+        pattern = f"{PROJECT_ID}-(?P<suffix>\w+(?:-\w+)+)"
         match = re.match(pattern, bucket_name)
         suffix = match['suffix']
 
@@ -300,8 +304,9 @@ def create_node_query(event, context, test=False):
     name_fields = get_name_fields(
                     event_name = event['name'], 
                     event_bucket = event['bucket'],
-                    commit_hash = GIT_COMMIT_HASH,
-                    version_tag = GIT_VERSION_TAG)
+                    #commit_hash = GIT_COMMIT_HASH,
+                    #version_tag = GIT_VERSION_TAG)
+                    )
     time_fields = get_time_fields(event)
 
     query_parameters.update(name_fields)
@@ -377,7 +382,7 @@ def create_node_query(event, context, test=False):
     if ENVIRONMENT == 'google-cloud':
         result = trellis.utils.publish_to_pubsub_topic(
             publisher = PUBLISHER,
-            project_id = GCP_PROJECT,
+            project_id = PROJECT_ID,
             topic = TRELLIS['TOPIC_DB_QUERY'],
             message = message)
         logging.info(f"> Published message to {TRELLIS['TOPIC_DB_QUERY']} with result: {result}.")
