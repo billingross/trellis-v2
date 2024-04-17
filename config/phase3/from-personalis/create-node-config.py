@@ -43,7 +43,7 @@ def _get_seconds_from_epoch(datetime_obj):
     return from_epoch_seconds
 
 
-def _search_string(string, pattern, group, req_type):
+def _search_string(name, string, pattern, group, req_type):
     # kwargs: [pattern, string, group, req_type]
     """Calls regex search function using specified values. 
 
@@ -62,7 +62,7 @@ def _search_string(string, pattern, group, req_type):
     if not match:
         # Throw exception
         #print("Error: no match found")
-        raise ValueError(f"No match found for pattern: {pattern} in string {string}.")
+        raise ValueError(f"Could not find '{name}'' in string '{string}'' following expression pattern '{pattern}'.")
     else:
         match_value = match.group(group)
 
@@ -134,6 +134,7 @@ def trellis_metadata_groupdict(db_dict, groupdict):
 
 def mate_pair_name_0(db_dict, groupdict):
     mate_pair = _search_string(
+                          name = "mate_pair_name_0",
                           string = db_dict['name'], 
                           pattern = "_R(\\d)$", 
                           group = 1, 
