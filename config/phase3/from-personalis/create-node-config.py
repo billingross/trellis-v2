@@ -133,6 +133,9 @@ def trellis_metadata_groupdict(db_dict, groupdict):
 
 
 def mate_pair_name_0(db_dict, groupdict):
+    """Look for mate pair value at the end of the Fastq name.
+    Example: fastq_0_R1.fastq.gz
+    """
     mate_pair = _search_string(
                           name = "mate_pair_name_0",
                           string = db_dict['name'], 
@@ -144,6 +147,7 @@ def mate_pair_name_0(db_dict, groupdict):
 
 def read_group_name_1(db_dict, groupdict):
     """Get 2nd element of db_dict['name'] property & return as readGroup.
+    Example: fastq_0_R1.fastq.gz
     """
     index = db_dict['name'].split('_')[1]
     return {'readGroup': int(index)}  
