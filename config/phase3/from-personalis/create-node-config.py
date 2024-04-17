@@ -61,8 +61,8 @@ def _search_string(string, pattern, group, req_type):
     match = re.search(pattern, string)
     if not match:
         # Throw exception
-        print("Error: no match found")
-        pdb.set_trace()
+        #print("Error: no match found")
+        raise ValueError(f"No match found for pattern: {pattern} in string {string}.")
     else:
         match_value = match.group(group)
 
