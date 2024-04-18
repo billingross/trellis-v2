@@ -296,7 +296,16 @@ def create_node_query(event, context, test=False):
     logging.info(f"> Label patterns: {len(label_patterns)}, label functions: {len(label_functions)}.")
 
     # Create dict of metadata to add to database node
-    gcp_metadata = event
+    #gcp_metadata = event
+    
+    # Generate UUID
+    if not event.get('trellisUuid') and ENVIRONMENT == 'google-cloud':
+        uuid = add_uuid_to_blob(
+                                event['bucket'], 
+                                event['path'])
+        logging.info(f"> Object UUID added: {uuid}. Exiting.")
+        return # Updating metadata will trigger this function again
+
     query_parameters = clean_metadata_dict(event)
     logging.info(f"> Cleaned object metadata: {query_parameters}.")
 
@@ -314,12 +323,12 @@ def create_node_query(event, context, test=False):
     logging.info(f"> Query parameters: {query_parameters}.")
 
     # Generate UUID
-    if not query_parameters.get('trellisUuid') and ENVIRONMENT == 'google-cloud':
-        uuid = add_uuid_to_blob(
-                                query_parameters['bucket'], 
-                                query_parameters['path'])
-        logging.info(f"> Object UUID added: {uuid}. Exiting.")
-        return # Updating metadata will trigger this function again
+    #if not query_parameters.get('trellisUuid') and ENVIRONMENT == 'google-cloud':
+    #    uuid = add_uuid_to_blob(
+    #                            query_parameters['bucket'], 
+    #                            query_parameters['path'])
+    #    logging.info(f"> Object UUID added: {uuid}. Exiting.")
+    #    return # Updating metadata will trigger this function again
 
     # Add trigger operation as metadata property
     query_parameters['triggerOperation'] = TRIGGER_OPERATION
