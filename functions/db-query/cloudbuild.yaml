@@ -7,6 +7,7 @@ steps:
          'trellis-db-query',
          '--project=${PROJECT_ID}',
          '--source=functions/db-query',
+         '--region=us-west2',
          '--memory=256MB',
          '--max-instances=20',
          '--entry-point=main',
