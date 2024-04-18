@@ -39,7 +39,7 @@ if ENVIRONMENT == 'google-cloud':
     # use Python's standard logging library to send logs to GCP
     import logging
 
-    FUNCTION_NAME = os.environ['FUNCTION_NAME']
+    FUNCTION_NAME = os.environ['K_SERVICE']
     GCP_PROJECT = os.environ['GCP_PROJECT']
 
     config_doc = storage.Client() \
