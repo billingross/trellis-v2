@@ -10,7 +10,7 @@ steps:
          '--memory=256MB',
          '--max-instances=20',
          '--entry-point=main',
-         '--runtime=python37',
+         '--runtime=python312',
          '--vpc-connector=trellis',
          '--trigger-topic=${_TRIGGER_TOPIC}',
          '--update-env-vars=CREDENTIALS_BUCKET=${_CREDENTIALS_BUCKET}',
@@ -18,6 +18,6 @@ steps:
          '--update-env-vars=ENVIRONMENT=${_ENVIRONMENT}',
          '--update-env-vars=DEVELOPMENT=${_DEVELOPMENT}',
          '--update-env-vars=USE_WORKER_V2=true',
-         '--update-env-vars=PYTHON37_DRAIN_LOGS_ON_CRASH_WAIT_SEC=5',
+         #'--update-env-vars=PYTHON37_DRAIN_LOGS_ON_CRASH_WAIT_SEC=5',
          '--update-labels=user=trellis',
   ]
