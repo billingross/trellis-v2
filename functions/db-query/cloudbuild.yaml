@@ -18,6 +18,7 @@ steps:
          '--update-env-vars=ENVIRONMENT=${_ENVIRONMENT}',
          '--update-env-vars=DEVELOPMENT=${_DEVELOPMENT}',
          '--update-env-vars=USE_WORKER_V2=true',
+         '--update-env-vars=PROJECT_ID=${PROJECT_ID}',
          #'--update-env-vars=PYTHON37_DRAIN_LOGS_ON_CRASH_WAIT_SEC=5',
          '--update-labels=user=trellis',
   ]
