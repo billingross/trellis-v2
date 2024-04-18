@@ -7,3 +7,8 @@ TOPIC_DB_QUERY: trellis-db-query
 USER_DEFINED_QUERIES: user-defined-queries.yaml
 CREATE_BLOB_QUERIES: create-blob-queries.yaml 
 CREATE_JOB_QUERIES: create-job-queries.yaml
+
+NEO4J_SCHEME: bolt
+NEO4J_IP_ADDRESS:
+NEO4J_PORT: 7687
+NEO4J_PASSPHRASE:
