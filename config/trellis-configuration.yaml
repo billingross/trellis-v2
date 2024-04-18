@@ -1,0 +1,9 @@
+# create-blob-node variables
+LABEL_TAXONOMY: label-taxonomy.json
+DATA_GROUP: phase3
+TOPIC_DB_QUERY: trellis-db-query
+
+# db-query variables
+USER_DEFINED_QUERIES: user-defined-queries.yaml
+CREATE_BLOB_QUERIES: create-blob-queries.yaml 
+CREATE_JOB_QUERIES: create-job-queries.yaml
