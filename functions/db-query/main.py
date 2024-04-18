@@ -40,7 +40,7 @@ if ENVIRONMENT == 'google-cloud':
     import logging
 
     FUNCTION_NAME = os.environ['K_SERVICE']
-    GCP_PROJECT = os.environ['GCP_PROJECT']
+    PROJECT_ID = os.environ['PROJECT_ID']
 
     config_doc = storage.Client() \
                 .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
@@ -379,7 +379,7 @@ def main(event, context, local_driver=None):
             logging.debug(f"> Publising message: {message}.")
             publish_result = trellis.utils.publish_to_pubsub_topic(
                     publisher = PUBLISHER,
-                    project_id = GCP_PROJECT,
+                    project_id = PROJECT_ID,
                     topic = topic, 
                     message = message)
             logging.info(f"> Published message to {topic} with result (event_id): {publish_result}.")
@@ -390,7 +390,7 @@ def main(event, context, local_driver=None):
                 logging.debug(f"> Publishing message: {message}.")
                 publish_result = trellis.utils.publish_to_pubsub_topic(
                     publisher = PUBLISHER,
-                    project_id = GCP_PROJECT,
+                    project_id = PROJECT_ID,
                     topic = topic,
                     message = message)
                 logging.info(f"> Published message to {topic} with result: {publish_result}.")
