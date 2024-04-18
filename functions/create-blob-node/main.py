@@ -302,7 +302,7 @@ def create_node_query(event, context, test=False):
     if not event.get('trellisUuid') and ENVIRONMENT == 'google-cloud':
         uuid = add_uuid_to_blob(
                                 event['bucket'], 
-                                event['path'])
+                                event['name'])
         logging.info(f"> Object UUID added: {uuid}. Exiting.")
         return # Updating metadata will trigger this function again
 
