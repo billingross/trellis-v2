@@ -83,7 +83,7 @@ if ENVIRONMENT == 'google-cloud':
     # database and manage connection pool used by neo4j.Session objects
     # https://neo4j.com/docs/api/python-driver/current/api.html#driver
     DRIVER = GraphDatabase.driver(
-        f"{TRELLIS['NEO4J_SCHEME']}://{TRELLIS['NEO4J_HOST']}:{TRELLIS['NEO4J_PORT']}",
+        f"{TRELLIS['NEO4J_SCHEME']}://{TRELLIS['NEO4J_IP_ADDRESS']}:{TRELLIS['NEO4J_PORT']}",
         auth=("neo4j", TRELLIS["NEO4J_PASSPHRASE"]),
         max_connection_pool_size=10)
 else:
