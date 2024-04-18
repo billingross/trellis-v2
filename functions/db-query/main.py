@@ -181,14 +181,14 @@ def main(event, context, local_driver=None):
                                                event=event, 
                                                context=context)
     
-    logging.info(f"+> Received query request; " +
+    logging.info(f"> db-query: Received query request; " +
                     f"event ID : {query_request.event_id}, " +
                     f"previous event ID : {query_request.previous_event_id}, " +
                     f"seed event ID : {query_request.seed_id}.")
-    logging.info(f"> Query request info: " +
+    logging.info(f"> db-query: Query request info: " +
                     f"custom : {query_request.custom}, " +
                     f"name : {query_request.query_name}.")
-    logging.debug(f"> Received message body: {query_request.body}.")
+    logging.debug(f"> db-query: Received message body: {query_request.body}.")
 
     if ENVIRONMENT == 'google-cloud':
         # Time from message publication to reception
@@ -196,7 +196,7 @@ def main(event, context, local_driver=None):
         publish_elapsed = datetime.now() - request_publication_time
         if publish_elapsed.total_seconds() > PUBSUB_ELAPSED_MAX:
             logging.warning(
-                f"> Time to receive message ({int(publish_elapsed.total_seconds())}) " +
+                f"> db-query: Time to receive message ({int(publish_elapsed.total_seconds())}) " +
                 f"exceeded {PUBSUB_ELAPSED_MAX} seconds after publication.")
 
     # Reload predefined database queries every time a function instance
@@ -216,13 +216,13 @@ def main(event, context, local_driver=None):
             QUERY_DICT[query.name] = query
 
     if query_request.custom == True:
-        logging.info("> Processing custom query.")
+        logging.info("> db-query: Processing custom query.")
 
         # Parse query parameters and data types from request
         required_parameters = {}
         for key, value in query_request.query_parameters.items():
             required_parameters[key] = type(value).__name__
-        logging.info(f"> Custom query required parameters: {required_parameters}.")
+        logging.info(f"> db-query: Custom query required parameters: {required_parameters}.")
 
         # Create DatabaseQuery object
         database_query = trellis.DatabaseQuery(
@@ -241,9 +241,9 @@ def main(event, context, local_driver=None):
         if re.match(pattern = r"^mergeBlob.*", string = database_query.name):
             if new_query_found_in_catalogue(database_query, CREATE_BLOB_QUERY_DOC):
                 register_new_query = False
-                logging.info("> Merge blob query already stored.")
+                logging.info("> db-query: Merge blob query already stored.")
             else:
-                logging.info("> Merge blob query not found in current catalogue; reloading latest version.")
+                logging.info("> db-query: Merge blob query not found in current catalogue; reloading latest version.")
                 # Reload create blob queries to make sure list is current
                 create_blob_query_doc = storage.Client() \
                                         .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
@@ -251,10 +251,10 @@ def main(event, context, local_driver=None):
                                         .download_as_string()
                 if new_query_found_in_catalogue(database_query, create_blob_query_doc):
                     register_new_query = False
-                    logging.info("> Merge blob query already stored.")
+                    logging.info("> db-query: Merge blob query already stored.")
             
             if register_new_query:
-                logging.info(f"> Merge blob query not found in existing catalogue; adding to {TRELLIS['CREATE_BLOB_QUERIES']}")
+                logging.info(f"> db-query: Merge blob query not found in existing catalogue; adding to {TRELLIS['CREATE_BLOB_QUERIES']}")
                 create_blob_query_str = create_blob_query_doc.decode("utf-8")
                 create_blob_query_str += "--- "
                 create_blob_query_str += yaml.dump(database_query)
@@ -289,63 +289,45 @@ def main(event, context, local_driver=None):
                     .get_blob(TRELLIS["CREATE_JOB_QUERIES"]) \
                     .upload_from_string(create_job_query_str)
         else:
-            logging.warning("> Custom query name did not match any recognized pattern.")
+            logging.warning("> db-query: Custom query name did not match any recognized pattern.")
     else:
         try:
             database_query = QUERY_DICT[query_request.query_name]
         except KeyError:
-            raise KeyError(f"> Database query '{query_request.query_name}' " +
+            raise KeyError(f"> db-query: Database query '{query_request.query_name}' " +
                            "is not available. Check that is has been " +
                            f"added to {TRELLIS['USER_DEFINED_QUERIES']}.")
 
     try:
         # TODO: Compare the provided query parameters against the 
         # required query parameters
-        logging.info(f"> Running query: {database_query.name} " +
+        logging.info(f"> db-query: Running query: {database_query.name} " +
                      f"with parameters: {query_request.query_parameters}.")
         graph, result_summary = query_database(
             driver = DRIVER,
             query = database_query,
             parameters = query_request.query_parameters)
     except ProtocolError as error:
-        logging.error(f"> Encountered Protocol Error: {error}.")
-        # Add message back to queue
-        #result = republish_message(DB_QUERY_TOPIC, data)
-        #logging.warn(f"> Published message to {DB_QUERY_TOPIC} with result: {result}.")
-        # Duplicate message flagged as warning
-        #logging.warn(f"> Encountered Protocol Error: {error}.")
+        logging.error(f"> db-query: Encountered Protocol Error: {error}.")
         return
     except ServiceUnavailable as error:
-        logging.error(f"> Encountered Service Interrupion: {error}.")
-        # Remove this connection(?) - causes UnboundLocalError
-        #GRAPH = None
-        # Add message back to queue
-        #result = republish_message(DB_QUERY_TOPIC, data)
-        #logging.warn(f"> Published message to {DB_QUERY_TOPIC} with result: {result}.")
-        # Duplicate message flagged as warning
-        #logging.warn(f"> Requeued message: {pubsub_message}.")
+        logging.error(f"> db-query: Encountered Service Interrupion: {error}.")
         return
     except ConnectionResetError as error:
-        logging.error(f"> Encountered connection interruption: {error}.")
-        # Add message back to queue
-        #result = republish_message(DB_QUERY_TOPIC, data)
-        #logging.warn(f"> Published message to {DB_QUERY_TOPIC} with result: {result}.")
-        # Duplicate message flagged as warning
-        #logging.warn(f"> Requeued message: {pubsub_message}.")
+        logging.error(f"> db-query: Encountered connection interruption: {error}.")
         return
 
     result_available_after = result_summary.result_available_after
     result_consumed_after = result_summary.result_consumed_after
     logging.info(
-                 f"> Query result available after: {result_available_after} ms, " +
+                 f"> db-query: Query result available after: {result_available_after} ms, " +
                  f"consumed after: {result_consumed_after} ms.")
-        #print(f"> Elapsed time to run query: {query_elapsed:.3f}. Query: {query}.")
     if int(result_available_after) > QUERY_ELAPSED_MAX:
         logging.warning(
-                        f"> Result available time ({result_available_after} ms) " +
+                        f"> db-query: Result available time ({result_available_after} ms) " +
                         f"exceeded {QUERY_ELAPSED_MAX:.3f}. " +
                         f"Query: {database_query.name}.")
-    logging.info(f"> Query result counter: {result_summary.counters}.")
+    logging.info(f"> db-query: Query result counter: {result_summary.counters}.")
 
     query_response = trellis.QueryResponseWriter(
         sender = FUNCTION_NAME,
@@ -356,14 +338,14 @@ def main(event, context, local_driver=None):
         job_request = database_query.job_request,
         result_summary = result_summary)
 
-    logging.info(f"> Query response nodes: {[list(node.labels) for node in query_response.nodes]}")
-    logging.info(f"> Query response relationships:")
+    logging.info(f"> db-query: Query response nodes: {[list(node.labels) for node in query_response.nodes]}")
+    logging.info(f"> db-query: Query response relationships:")
     for relationship in query_response.relationships:
         logging.info(f">> (:{list(relationship.start_node.labels)})-[:{relationship.type}]->(:{list(relationship.end_node.labels)})")
 
     # Return if no pubsub topic or not running on GCP
     if not database_query.publish_to or not ENVIRONMENT == 'google-cloud':
-        print("> No Pub/Sub topic specified; result not published.")
+        print("> db-query: No Pub/Sub topic specified; result not published.")
         return
 
     # Track how many messages are published to each topic
@@ -375,24 +357,24 @@ def main(event, context, local_driver=None):
         # Default behavior will be to split results
         if hasattr(database_query, "aggregate_results") and database_query.aggregate_results == 'True':
             message = query_response.return_json_with_all_nodes()
-            logging.info(f"> Publishing query response to topic: {topic}.")
-            logging.debug(f"> Publising message: {message}.")
+            logging.info(f"> db-query: Publishing query response to topic: {topic}.")
+            logging.debug(f"> db-query: Publising message: {message}.")
             publish_result = trellis.utils.publish_to_pubsub_topic(
                     publisher = PUBLISHER,
                     project_id = PROJECT_ID,
                     topic = topic, 
                     message = message)
-            logging.info(f"> Published message to {topic} with result (event_id): {publish_result}.")
+            logging.info(f"> db-query: Published message to {topic} with result (event_id): {publish_result}.")
             published_message_counts[topic] += 1
         else:
             for message in query_response.generate_separate_entity_jsons():
-                logging.info(f"> Publishing query response to topic: {topic}.")
-                logging.debug(f"> Publishing message: {message}.")
+                logging.info(f"> db-query: Publishing query response to topic: {topic}.")
+                logging.debug(f"> db-query: Publishing message: {message}.")
                 publish_result = trellis.utils.publish_to_pubsub_topic(
                     publisher = PUBLISHER,
                     project_id = PROJECT_ID,
                     topic = topic,
                     message = message)
-                logging.info(f"> Published message to {topic} with result: {publish_result}.")
+                logging.info(f"> db-query: Published message to {topic} with result: {publish_result}.")
                 published_message_counts[topic] += 1
     logging.info(f"-> Summary of published messages: {published_message_counts}")
