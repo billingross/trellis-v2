@@ -298,11 +298,20 @@ def create_node_query(event, context, test=False):
     # Create dict of metadata to add to database node
     #gcp_metadata = event
     
-    # Generate UUID
-    if not event.get('trellisUuid') and ENVIRONMENT == 'google-cloud':
+    # Check whether UUID has been generated for blob. If not, create one.
+    event_metadata = event.get('metadata')
+    if event_metadata:
+        uuid = event_metadata.get('trellis-uuid')
+        if not uuid:
+            uuid = add_uuid_to_blob(
+                                    event['bucket'], 
+                                    event['name'])
+            logging.info(f"> Object UUID added: {uuid}. Exiting.")
+            return # Updating metadata will trigger this function again
+    else:
         uuid = add_uuid_to_blob(
-                                event['bucket'], 
-                                event['name'])
+                        event['bucket'], 
+                        event['name'])
         logging.info(f"> Object UUID added: {uuid}. Exiting.")
         return # Updating metadata will trigger this function again
 
