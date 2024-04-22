@@ -1,0 +1,35 @@
+--- !DatabaseTrigger
+name: RelateFastqToReadGroup
+pattern: node
+start:
+    label: Fastq
+    properties:
+        readGroup: read_group
+query: relateFastqToReadGroup
+--- !DatabaseTrigger
+name: RelateReadGroupToSample
+pattern: relationship
+start:
+    label: ReadGroup
+    properties:
+        sample: sample
+relationship:
+    type: HAS_FASTQ
+end:
+    label: Fastq
+query: relateReadGroupToSample
+--- !DatabaseTrigger
+name: RelateFastqMatePair
+pattern: relationship
+start: 
+    label: ReadGroup
+    properties:
+        sample: sample
+        readGroup: read_group
+relationship:
+    type: HAS_FASTQ
+end:
+    label: Fastq
+        matePair: mate_pair
+query: relateFastqMatePair
+

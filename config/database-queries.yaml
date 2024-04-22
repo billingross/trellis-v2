@@ -1,0 +1,27 @@
+--- !DatabaseQuery
+name: relateFastqMatePair
+cypher: 'MATCH (r1:Fastq)<-[:GENERATED]-(seq:PersonalisSequencing)-[:GENERATED]->(r2:Fastq)
+    WHERE seq.sample = $sample
+    AND r1.readGroup = $read_group
+    AND r2.readGroup = $read_group
+    AND r1.matePair = 1
+    AND r2.matePair = 2
+    MERGE (r1)-[rel:HAS_MATE_PAIR]->(r2)
+    RETURN r1, rel, r2'
+required_parameters:
+    sample: str
+    read_group: int
+write_transaction: true
+publish_to:
+    - TOPIC_TRIGGERS
+job_request: null
+indexes:
+    PersonalisSequencing:
+        - sample
+returns:
+    -
+        start: Fastq
+        relationship: HAS_MATE_PAIR
+        end: Fastq
+aggregate_results: false
+redundant: false
