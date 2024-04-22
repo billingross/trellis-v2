@@ -20,6 +20,7 @@ steps:
          '--update-env-vars=CREDENTIALS_BUCKET=${_CREDENTIALS_BUCKET}',
          '--update-env-vars=CREDENTIALS_BLOB=${_CREDENTIALS_BLOB}',
          '--update-env-vars=ENVIRONMENT=${_ENVIRONMENT}',
+         '--update-env-vars=PROJECT_ID=${PROJECT_ID}',
          # Fix for logging issue: https://issuetracker.google.com/issues/155215191#comment112
          #'--update-env-vars=USE_WORKER_V2=true',
          #'--update-env-vars=PYTHON37_DRAIN_LOGS_ON_CRASH_WAIT_SEC=5',
