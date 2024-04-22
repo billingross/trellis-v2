@@ -3,7 +3,7 @@ steps:
   args: ['ls', 'config/${_DATA_GROUP}']
 - name: 'ubuntu'
   args: ['cp',
-         'config/database-triggers.yaml'
+         'config/database-triggers.yaml',
          'functions/check-triggers/']
 - name: 'ubuntu'
   args: ['ls', 'functions/check-triggers']
