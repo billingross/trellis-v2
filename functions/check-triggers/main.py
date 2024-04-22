@@ -27,8 +27,8 @@ if ENVIRONMENT == 'google-cloud':
     # use Python's standard logging library to send logs to GCP
     import logging
 
-    FUNCTION_NAME = os.environ['FUNCTION_NAME']
-    GCP_PROJECT = os.environ['GCP_PROJECT']
+    FUNCTION_NAME = os.environ['K_SERVICE']
+    PROJECT_ID = os.environ['PROJECT_ID']
 
     config_doc = storage.Client() \
                 .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
@@ -101,7 +101,7 @@ def check_triggers(event, context, dry_run=False):
         else:
             result = trellis.utils.publish_to_pubsub_topic(
                                                            publisher = PUBLISHER, 
-                                                           project_id = GCP_PROJECT, 
+                                                           project_id = PROJECT_ID, 
                                                            topic = TRELLIS['TOPIC_DB_QUERY'], 
                                                            message = pubsub_message)
 
