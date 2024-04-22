@@ -39,12 +39,16 @@ if ENVIRONMENT == 'google-cloud':
 
     PUBLISHER = pubsub.PublisherClient()
 
-    # Need to pull this from GCS
-    trigger_document = storage.Client() \
-                        .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
-                        .get_blob(TRELLIS['DB_TRIGGERS']) \
-                        .download_as_string()
-    TRIGGER_CONTROLLER = trellis.TriggerController(trigger_document)
+    # DEPRECATED: Need to pull this from GCS
+    #trigger_document = storage.Client() \
+    #                    .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
+    #                    .get_blob(TRELLIS['DB_TRIGGERS']) \
+    #                    .download_as_string()
+    
+    # Instead of loading from GCS, I'm storing triggers in the repo
+    # and loading locally
+    with open("database-triggers.yaml", 'r') as trigger_document:
+        TRIGGER_CONTROLLER = trellis.TriggerController(trigger_document)
 
 def check_triggers(event, context, dry_run=False):
     """When object created in bucket, add metadata to database.
