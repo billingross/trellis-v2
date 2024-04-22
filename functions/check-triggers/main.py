@@ -47,8 +47,9 @@ if ENVIRONMENT == 'google-cloud':
     
     # Instead of loading from GCS, I'm storing triggers in the repo
     # and loading locally
-    with open("database-triggers.yaml", 'r') as trigger_document:
-        TRIGGER_CONTROLLER = trellis.TriggerController(trigger_document)
+    with open("database-triggers.yaml", 'r') as file_handle:
+        trigger_document = file_handle.read()
+    TRIGGER_CONTROLLER = trellis.TriggerController(trigger_document)
 
 def check_triggers(event, context, dry_run=False):
     """When object created in bucket, add metadata to database.
