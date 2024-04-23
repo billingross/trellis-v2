@@ -256,7 +256,7 @@ def get_leaf_labels(labels, taxonomy_parser):
             labels.remove(label)
     return labels
 
-def create_node_query(event, context, test=False):
+def create_blob_node(event, context, test=False):
     """When object created in bucket, add metadata to database.
     Args:
         event (dict): Event payload.

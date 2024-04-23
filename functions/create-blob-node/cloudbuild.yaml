@@ -12,7 +12,7 @@ steps:
          '--source=functions/create-blob-node',
          '--memory=256MB',
          '--max-instances=100',
-         '--entry-point=create_node_query',
+         '--entry-point=create_blob_node',
          '--runtime=python312',
          '--region=us-west2',
          '--gen2',

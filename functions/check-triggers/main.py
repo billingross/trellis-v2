@@ -71,7 +71,7 @@ def main(event, context, dry_run=False):
     if query_response.nodes:
         logging.info("> check-triggers: Query response nodes:")
         for node in query_response.nodes:
-            logging.info(f">> {node['labels']}")
+            logging.info(f"> check-triggers: {node['labels']}")
 
     if query_response.relationship:
         start_labels = query_response.relationship['start_node']['labels']

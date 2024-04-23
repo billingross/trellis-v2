@@ -150,9 +150,7 @@ def _stored_procedure_transaction_function(tx, query, **query_parameters):
     result = tx.run(query, query_parameters)
     return result.graph(), result.consume()
 
-def new_query_found_in_catalogue(
-                                 new_query: trellis.DatabaseQuery, 
-                                 catalogued_queries: str) -> bool:
+def new_query_found_in_catalogue(new_query: trellis.DatabaseQuery, catalogued_queries: str) -> bool:
     # Typing hints: https://docs.python.org/3/library/typing.html
 
     query_match_found = False
@@ -171,7 +169,7 @@ def new_query_found_in_catalogue(
                          "but does not match current query.")
     return query_match_found
   
-def main(event, context, local_driver=None):
+def db_query(event, context, local_driver=None):
     """When an object node is added to the database, launch any
        jobs corresponding to that node label.
 
@@ -271,9 +269,9 @@ def main(event, context, local_driver=None):
         elif re.match(pattern = r"^mergeJob.*", string = database_query.name):
             if new_query_found_in_catalogue(database_query, CREATE_JOB_QUERY_DOC):
                 register_new_query = False
-                logging.info(">> Merge job query already stored.")
+                logging.info("> db-query: Merge job query already stored.")
             else:
-                logging.info(">> Merge job query not found in current catalogue; reloading latest version.")
+                logging.info("> db-query: Merge job query not found in current catalogue; reloading latest version.")
                 # Reload create job queries to make sure list is current
                 create_job_query_doc = storage.Client() \
                                         .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
@@ -281,10 +279,10 @@ def main(event, context, local_driver=None):
                                         .download_as_string()
                 if new_query_found_in_catalogue(database_query, create_job_query_doc):
                     register_new_query = False
-                    logging.info(">> Merge job query already stored.")
+                    logging.info("> db-query: Merge job query already stored.")
 
             if register_new_query:
-                logging.info(f">> Merge job query not found in existing catalogue; adding to {TRELLIS['CREATE_JOB_QUERIES']}")
+                logging.info(f"> db-query: Merge job query not found in existing catalogue; adding to {TRELLIS['CREATE_JOB_QUERIES']}")
                 create_job_query_str = create_job_query_doc.decode("utf-8")
                 create_job_query_str += "--- "
                 create_job_query_str += yaml.dump(database_query)
@@ -347,7 +345,7 @@ def main(event, context, local_driver=None):
     logging.info(f"> db-query: Query response nodes: {[list(node.labels) for node in query_response.nodes]}")
     logging.info(f"> db-query: Query response relationships:")
     for relationship in query_response.relationships:
-        logging.info(f">> (:{list(relationship.start_node.labels)})-[:{relationship.type}]->(:{list(relationship.end_node.labels)})")
+        logging.info(f"> db-query: (:{list(relationship.start_node.labels)})-[:{relationship.type}]->(:{list(relationship.end_node.labels)})")
 
     # Return if no pubsub topic or not running on GCP
     if not database_query.publish_to or not ENVIRONMENT == 'google-cloud':
@@ -383,4 +381,4 @@ def main(event, context, local_driver=None):
                     message = message)
                 logging.info(f"> db-query: Published message to {topic} with result: {publish_result}.")
                 published_message_counts[topic] += 1
-    logging.info(f"-> Summary of published messages: {published_message_counts}")
+    logging.info(f"> db-query: Summary of published messages: {published_message_counts}")
