@@ -21,7 +21,6 @@ from google.cloud import pubsub
 from google.cloud import storage
 
 import trellisdata as trellis
-from trellisdata import DatabaseQuery
 
 # Get runtime variables from cloud storage bucket
 # https://www.sethvargo.com/secrets-in-serverless/
@@ -80,8 +79,9 @@ if ENVIRONMENT == 'google-cloud':
     QUERY_DICT = {}
     for query in queries:
         if query.name in QUERY_DICT.keys():
-            raise ValueError(f"Query {query.name} is defined in duplicate.")
+            raise ValueError(f"> db-query: Query {query.name} is defined in duplicate.")
         QUERY_DICT[query.name] = query
+    logging.info(f"> db-query: Query names: {QUERY_DICT.keys()}.")
 
     # Use Neo4j driver object to establish connections to the Neo4j
     # database and manage connection pool used by neo4j.Session objects
