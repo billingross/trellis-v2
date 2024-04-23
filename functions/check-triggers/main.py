@@ -51,7 +51,7 @@ if ENVIRONMENT == 'google-cloud':
         trigger_document = file_handle.read()
     TRIGGER_CONTROLLER = trellis.TriggerController(trigger_document)
 
-def check_triggers(event, context, dry_run=False):
+def main(event, context, dry_run=False):
     """When object created in bucket, add metadata to database.
     Args:
         event (dict): Event payload.
@@ -63,13 +63,13 @@ def check_triggers(event, context, dry_run=False):
                         event = event)
 
     logging.info(
-                 f"+> Received query response; " +
+                 f"> check-triggers: Received query response; " +
                  f"event ID : {query_response.event_id}, " +
                  f"previous event ID : {query_response.previous_event_id}, " +
                  f"seed event ID : {query_response.seed_id}.")
     
     if query_response.nodes:
-        logging.info("> Query response nodes:")
+        logging.info("> check-triggers: Query response nodes:")
         for node in query_response.nodes:
             logging.info(f">> {node['labels']}")
 
@@ -77,10 +77,10 @@ def check_triggers(event, context, dry_run=False):
         start_labels = query_response.relationship['start_node']['labels']
         relationship_type = query_response.relationship['type']
         end_labels = query_response.relationship['end_node']['labels']
-        logging.info(f"> Query response relationship: " +
+        logging.info(f"> check-triggers: Query response relationship: " +
                      f"({start_labels})-[{relationship_type}]->({end_labels})")
-    logging.debug(f"> Message header: {query_response.header}.")
-    logging.debug(f"> Message body: {query_response.body}.")
+    logging.debug(f"> check-triggers: Message header: {query_response.header}.")
+    logging.debug(f"> check-triggers: Message body: {query_response.body}.")
 
 
     activated_triggers = TRIGGER_CONTROLLER.evaluate_trigger_conditions(query_response)
@@ -89,7 +89,7 @@ def check_triggers(event, context, dry_run=False):
         published_messages[trigger.name] = 0
 
     for trigger, parameters in activated_triggers:
-        logging.info(f"> Trigger activated: {trigger.name}.")
+        logging.info(f"> check-triggers: Trigger activated: {trigger.name}.")
 
         # Create query request
         query_request = trellis.QueryRequestWriter(
@@ -100,9 +100,9 @@ def check_triggers(event, context, dry_run=False):
             query_parameters = parameters)
         
         pubsub_message = query_request.format_json_message()
-        logging.info(f"> Publishing query request; {pubsub_message['body']}.")
+        logging.info(f"> check-triggers: Publishing query request; {pubsub_message['body']}.")
         if dry_run:
-            logging.info(f"> Dry run: Would have published message to {TRELLIS['TOPIC_DB_QUERY']}.")
+            logging.info(f"> check-triggers: Dry run: Would have published message to {TRELLIS['TOPIC_DB_QUERY']}.")
         else:
             result = trellis.utils.publish_to_pubsub_topic(
                                                            publisher = PUBLISHER, 
@@ -111,5 +111,6 @@ def check_triggers(event, context, dry_run=False):
                                                            message = pubsub_message)
 
             published_messages[trigger.name] += 1
-            logging.info(f"> Published request to {TRELLIS['TOPIC_DB_QUERY']} with result (event_id): {result}.")
-    logging.info(f"-> Summary of published messages: {published_messages}")
+            logging.info(f"> check-triggers: Published request to {TRELLIS['TOPIC_DB_QUERY']} with result (event_id): {result}.")
+    logging.info(f"> check-triggers: Summary of published messages: {published_messages}")
+

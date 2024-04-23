@@ -14,7 +14,7 @@ steps:
          '--source=functions/check-triggers',
          '--memory=256MB',
          '--max-instances=20',
-         '--entry-point=check_triggers',
+         '--entry-point=main',
          '--runtime=python312',
          '--trigger-topic=${_TRIGGER_TOPIC}',
          '--update-env-vars=CREDENTIALS_BUCKET=${_CREDENTIALS_BUCKET}',
