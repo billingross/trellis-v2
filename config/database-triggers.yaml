@@ -5,6 +5,7 @@ start:
     label: Fastq
     properties:
         readGroup: read_group
+        sample: sample
 query: relateFastqToReadGroup
 --- !DatabaseTrigger
 name: RelateReadGroupToSample
