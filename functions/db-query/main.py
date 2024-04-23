@@ -297,9 +297,11 @@ def main(event, context, local_driver=None):
         try:
             database_query = QUERY_DICT[query_request.query_name]
         except KeyError:
+            logging.info(f"> db-query: Defined queries: {QUERY_DICT.keys()}.")
             raise KeyError(f"> db-query: Database query '{query_request.query_name}' " +
                            "is not available. Check that is has been " +
-                           f"added to {TRELLIS['USER_DEFINED_QUERIES']}.")
+                           #f"added to {TRELLIS['USER_DEFINED_QUERIES']}.")
+                           f"added to config/database-queries.yaml.")
 
     try:
         # TODO: Compare the provided query parameters against the 
