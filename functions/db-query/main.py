@@ -21,6 +21,7 @@ from google.cloud import pubsub
 from google.cloud import storage
 
 import trellisdata as trellis
+from trellisdata import DatabaseQuery
 
 # Get runtime variables from cloud storage bucket
 # https://www.sethvargo.com/secrets-in-serverless/
@@ -184,13 +185,13 @@ def main(event, context, local_driver=None):
                                                event=event, 
                                                context=context)
     
-    logging.info(f"> db-query: Received query request; " +
-                    f"event ID : {query_request.event_id}, " +
-                    f"previous event ID : {query_request.previous_event_id}, " +
-                    f"seed event ID : {query_request.seed_id}.")
+    logging.info(f"> db-query: Received query request: " +
+                    f"event ID = {query_request.event_id}, " +
+                    f"previous event ID = {query_request.previous_event_id}, " +
+                    f"seed event ID = {query_request.seed_id}.")
     logging.info(f"> db-query: Query request info: " +
-                    f"custom : {query_request.custom}, " +
-                    f"name : {query_request.query_name}.")
+                    f"custom = {query_request.custom}, " +
+                    f"name = {query_request.query_name}.")
     logging.debug(f"> db-query: Received message body: {query_request.body}.")
 
     if ENVIRONMENT == 'google-cloud':
