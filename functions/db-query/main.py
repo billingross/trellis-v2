@@ -53,10 +53,13 @@ if ENVIRONMENT == 'google-cloud':
     PUBLISHER = pubsub.PublisherClient()
 
     # Load queries predefined by Trellis developers.
-    queries_document = storage.Client() \
-                        .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
-                        .get_blob(TRELLIS["USER_DEFINED_QUERIES"]) \
-                        .download_as_string()
+    #queries_document = storage.Client() \
+    #                    .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
+    #                    .get_blob(TRELLIS["USER_DEFINED_QUERIES"]) \
+    #                    .download_as_string()
+    #queries = yaml.load_all(queries_document, Loader=yaml.FullLoader)
+    with open("database-triggers.yaml", 'r') as file_handle:
+        queries_document = file_handle.read()
     queries = yaml.load_all(queries_document, Loader=yaml.FullLoader)
     
     # Load list of existing queries that have been dynamically
