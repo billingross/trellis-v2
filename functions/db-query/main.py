@@ -58,7 +58,7 @@ if ENVIRONMENT == 'google-cloud':
     #                    .get_blob(TRELLIS["USER_DEFINED_QUERIES"]) \
     #                    .download_as_string()
     #queries = yaml.load_all(queries_document, Loader=yaml.FullLoader)
-    with open("database-triggers.yaml", 'r') as file_handle:
+    with open("database-queries.yaml", 'r') as file_handle:
         queries_document = file_handle.read()
     queries = yaml.load_all(queries_document, Loader=yaml.FullLoader)
     
