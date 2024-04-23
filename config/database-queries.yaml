@@ -20,7 +20,7 @@ aggregate_results: false
 redundant: false
 --- !DatabaseQuery
 name: relateFastqToReadGroup
-cypher: 'MATCH (node2:Fastq) WHERE node2.readGroup = $read_group AND node2.sample = $sample MERGE (node1:ReadGroup {readGroup: $read_group, sample:$sample})-[rel:HAS_FASTQ]->(node2) RETURN n1, rel, n2'
+cypher: 'MATCH (node2:Fastq) WHERE node2.readGroup = $read_group AND node2.sample = $sample MERGE (node1:ReadGroup {readGroup: $read_group, sample:$sample})-[rel:HAS_FASTQ]->(node2) RETURN node1, rel, node2'
 required_parameters:
     sample: str
     read_group: int
