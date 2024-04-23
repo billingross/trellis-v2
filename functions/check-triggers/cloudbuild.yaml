@@ -16,6 +16,7 @@ steps:
          '--max-instances=20',
          '--entry-point=main',
          '--runtime=python312',
+         '--region=us-west2',
          '--trigger-topic=${_TRIGGER_TOPIC}',
          '--update-env-vars=CREDENTIALS_BUCKET=${_CREDENTIALS_BUCKET}',
          '--update-env-vars=CREDENTIALS_BLOB=${_CREDENTIALS_BLOB}',
