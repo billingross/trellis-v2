@@ -32,4 +32,17 @@ relationship:
 end:
     label: Fastq
 query: relateFastqMatePair
+--- !DatabaseTrigger
+name: LaunchFastqToUbam
+pattern: relationship
+start:
+    label: Fastq
+    properties:
+        sample: sample
+        readGroup: read_group
+relationship:
+    type: HAS_MATE_PAIR
+end:
+    label: Fastq
+query: launchFastqToUbam
 
