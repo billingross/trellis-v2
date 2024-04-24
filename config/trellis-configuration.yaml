@@ -14,3 +14,4 @@ NEO4J_PORT: 7687
 NEO4J_PASSPHRASE:
 
 TOPIC_TRIGGERS: trellis-check-triggers
+TOPIC_JOB_LAUNCHER: trellis-job-launcher
