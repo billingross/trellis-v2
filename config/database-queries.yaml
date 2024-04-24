@@ -1,15 +1,15 @@
 --- !DatabaseQuery
+# This query will relate both fastqs of a read group to each other with mutual HAS_MATE_PAIR relationships. It will relate all of the Fastqs in all of the read groups of a sample.
 name: relateFastqMatePair
-cypher: 'MATCH (r1:Fastq)<-[:GENERATED]-(seq:PersonalisSequencing)-[:GENERATED]->(r2:Fastq) WHERE seq.sample = $sample AND r1.readGroup = $read_group AND r2.readGroup = $read_group AND r1.matePair = 1 AND r2.matePair = 2 MERGE (r1)-[rel:HAS_MATE_PAIR]->(r2) RETURN r1, rel, r2'
+cypher: 'MATCH (sample:Sample)-[:HAS_READ_GROUP]->(readGroup:ReadGroup) WHERE sample.sample = $sample WITH readGroup MATCH (fastq1:Fastq)<-[:HAS_FASTQ]-(readGroup)-[:HAS_FASTQ]->(fastq2:Fastq) MERGE (fastq1)-[rel:HAS_MATE_PAIR]->(fastq2) RETURN fastq1, rel, fastq2'
 required_parameters:
     sample: str
-    read_group: int
 write_transaction: true
 publish_to:
     - TOPIC_TRIGGERS
 job_request: null
 indexes:
-    PersonalisSequencing:
+    Sample:
         - sample
 returns:
     -
@@ -17,10 +17,11 @@ returns:
         relationship: HAS_MATE_PAIR
         end: Fastq
 aggregate_results: false
-redundant: false
+redundant: true
 --- !DatabaseQuery
+# This query will find the fastqs of the specified sample & read group properties and merge a ReadGroup node to the database that matches those properties. It will then relate the read group to the fastqs.
 name: relateFastqToReadGroup
-cypher: 'MATCH (node2:Fastq) WHERE node2.readGroup = $read_group AND node2.sample = $sample MERGE (node1:ReadGroup {readGroup: $read_group, sample:$sample}) WITH node1, node2 MERGE (node1)-[rel:HAS_FASTQ]->(node2) RETURN node1, rel, node2'
+cypher: 'MATCH (fastq:Fastq {readGroup: $read_group, sample: $sample}) MERGE (readGroup:ReadGroup {readGroup: $read_group, sample:$sample}) WITH fastq, readGroup MERGE (readGroup)-[rel:HAS_FASTQ]->(fastq) RETURN readGroup, rel, fastq'
 required_parameters:
     sample: str
     read_group: int
@@ -40,8 +41,9 @@ returns:
 aggregate_results: false
 redundant: true
 --- !DatabaseQuery
+# This query will find any read groups of the specified sample, merge a sample node to the database, and then relate the sample to those read groups.
 name: relateReadGroupToSample
-cypher: 'MATCH (node2:ReadGroup) WHERE node2.sample = $sample MERGE (node1:Sample {sample: $sample}) WITH node1, node2 MERGE (node1)-[rel:HAS_READ_GROUP]->(node2) RETURN node1, rel, node2'
+cypher: 'MATCH (readGroup:ReadGroup {sample = $sample}) MERGE (sample:Sample {sample: $sample}) WITH readGroup, sample MERGE (sample)-[rel:HAS_READ_GROUP]->(readGroup) RETURN sample, rel, readGroup'
 required_parameters:
     sample: str
 write_transaction: true

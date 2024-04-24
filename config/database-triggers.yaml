@@ -31,7 +31,5 @@ relationship:
     type: HAS_FASTQ
 end:
     label: Fastq
-    properties:
-        matePair: mate_pair
 query: relateFastqMatePair
 
