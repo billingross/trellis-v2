@@ -32,7 +32,7 @@ if ENVIRONMENT == 'google-cloud':
     import logging
 
     FUNCTION_NAME = os.environ['K_SERVICE']
-    GCP_PROJECT = os.environ['PROJECT_ID']
+    PROJECT_ID = os.environ['PROJECT_ID']
 
     # Load Trellis configuration
     config_doc = storage.Client() \
@@ -202,7 +202,7 @@ def launch_dsub_task(dsub_args):
 
 def write_metadata_to_blob(meta_blob_path, metadata):
     try:
-        meta_blob = storage.Client(project=GCP_PROJECT) \
+        meta_blob = storage.Client(project=PROJECT_ID) \
             .get_bucket(OUT_BUCKET) \
             .blob(meta_blob_path) \
             .upload_from_string(json.dumps(metadata))
@@ -408,7 +408,7 @@ def launch_job(event, context):
     """
     job_dict = create_neo4j_job_dict(
                                task = task,
-                               project_id = GCP_PROJECT,
+                               project_id = PROJECT_ID,
                                trellis_config = TRELLIS_CONFIG,
                                start_node = start,
                                end_node = end,
@@ -474,7 +474,7 @@ def launch_job(event, context):
         print(f"> Pubsub message: {message}.")
         result = trellis.utils.publish_to_pubsub_topic(
                     publisher = PUBLISHER,
-                    project_id = GCP_PROJECT,
+                    project_id = PROJECT_ID,
                     topic = NEW_JOB_TOPIC,
                     message = message) 
         print(f"> Published message to {NEW_JOB_TOPIC} with result: {result}.")
