@@ -43,7 +43,7 @@ redundant: true
 --- !DatabaseQuery
 # This query will find any read groups of the specified sample, merge a sample node to the database, and then relate the sample to those read groups.
 name: relateReadGroupToSample
-cypher: 'MATCH (readGroup:ReadGroup {sample = $sample}) MERGE (sample:Sample {sample: $sample}) WITH readGroup, sample MERGE (sample)-[rel:HAS_READ_GROUP]->(readGroup) RETURN sample, rel, readGroup'
+cypher: 'MATCH (readGroup:ReadGroup {sample: $sample}) MERGE (sample:Sample {sample: $sample}) WITH readGroup, sample MERGE (sample)-[rel:HAS_READ_GROUP]->(readGroup) RETURN sample, rel, readGroup'
 required_parameters:
     sample: str
 write_transaction: true
