@@ -1,8 +1,8 @@
 steps:
 - name: 'ubuntu'
-  args: ['cp',
-         'config/database-queries.yaml',
-         'functions/db-query/']
+  args: ['cp', 'config/trellis-configuration.yaml', 'functions/db-query/']
+- name: 'ubuntu'
+  args: ['cp', 'config/database-queries.yaml', 'functions/db-query/']
 - name: 'gcr.io/cloud-builders/gcloud'
   args: [
          'beta',
