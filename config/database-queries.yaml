@@ -39,3 +39,22 @@ returns:
         end: Fastq
 aggregate_results: false
 redundant: true
+--- !DatabaseQuery
+name: relateReadGroupToSample
+cypher: 'MATCH (node2:ReadGroup) WHERE node2.sample = $sample MERGE (node1:Sample {sample: $sample}) WITH node1, node2 MERGE (node1)-[rel:HAS_READ_GROUP]->(node2) RETURN node1, rel, node2'
+required_parameters:
+    sample: str
+write_transaction: true
+publish_to:
+    - TOPIC_TRIGGERS
+job_request: null
+    indexes:
+        ReadGroup:
+            - sample
+returns:
+    -
+        start: Sample
+        relationship: HAS_READ_GROUP
+        end: ReadGroup
+aggregate_results: false
+redundant: true
