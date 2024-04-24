@@ -31,8 +31,8 @@ if ENVIRONMENT == 'google-cloud':
     # use Python's standard logging library to send logs to GCP
     import logging
 
-    FUNCTION_NAME = os.environ['FUNCTION_NAME']
-    GCP_PROJECT = os.environ['GCP_PROJECT']
+    FUNCTION_NAME = os.environ['K_SERVICE']
+    GCP_PROJECT = os.environ['PROJECT_ID']
 
     # Load Trellis configuration
     config_doc = storage.Client() \
@@ -42,10 +42,12 @@ if ENVIRONMENT == 'google-cloud':
     TRELLIS_CONFIG = yaml.safe_load(config_doc)
 
     # Load launcher configuration
-    launcher_document = storage.Client() \
-                        .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
-                        .get_blob(TRELLIS_CONFIG["JOB_LAUNCHER_CONFIG"]) \
-                        .download_as_string()
+    #launcher_document = storage.Client() \
+    #                    .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
+    #                    .get_blob(TRELLIS_CONFIG["JOB_LAUNCHER_CONFIG"]) \
+    #                    .download_as_string()
+    with open("job-launcher.yaml", 'r') as file_handle:
+        launcher_document = file_handle.read()
     task_generator = yaml.load_all(launcher_document, Loader=yaml.FullLoader)
     TASKS = {}
     for task in task_generator:
