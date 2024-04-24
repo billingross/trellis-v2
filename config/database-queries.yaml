@@ -48,9 +48,9 @@ write_transaction: true
 publish_to:
     - TOPIC_TRIGGERS
 job_request: null
-    indexes:
-        ReadGroup:
-            - sample
+indexes:
+    ReadGroup:
+        - sample
 returns:
     -
         start: Sample
