@@ -242,7 +242,7 @@ def create_neo4j_job_dict(task, project_id, trellis_config, start_node, end_node
                              params = "inputs")
     outputs = _get_output_values(
                                  task = task, 
-                                 bucket = trellis_config['DSUB_OUT_BUCKET'],
+                                 bucket = trellis_config['JOB_OUTPUT_BUCKET'],
                                  start = start_node,
                                  end = end_node,
                                  job_id = job_id)
