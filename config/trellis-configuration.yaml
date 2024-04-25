@@ -17,4 +17,7 @@ TOPIC_TRIGGERS: trellis-check-triggers
 TOPIC_JOB_LAUNCHER: trellis-job-launcher
 
 # job-launcher variables
-JOB_OUTPUT_BUCKET:
+DSUB_OUTPUT_BUCKET: 
+DSUB_LOG_BUCKET: 
+DSUB_USER: trellis
+DSUB_REGIONS: us-west2
