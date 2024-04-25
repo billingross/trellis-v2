@@ -15,3 +15,6 @@ NEO4J_PASSPHRASE:
 
 TOPIC_TRIGGERS: trellis-check-triggers
 TOPIC_JOB_LAUNCHER: trellis-job-launcher
+
+# job-launcher variables
+JOB_OUTPUT_BUCKET:
