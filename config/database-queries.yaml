@@ -3,19 +3,19 @@
 name: relateFastqMatePair
 cypher: 'MATCH (sample:Sample)-[:HAS_READ_GROUP]->(readGroup:ReadGroup) WHERE sample.sample = $sample WITH readGroup MATCH (fastq1:Fastq)<-[:HAS_FASTQ]-(readGroup)-[:HAS_FASTQ]->(fastq2:Fastq) MERGE (fastq1)-[rel:HAS_MATE_PAIR]->(fastq2) RETURN fastq1, rel, fastq2'
 required_parameters:
-    sample: str
+  sample: str
 write_transaction: true
 publish_to:
-    - TOPIC_TRIGGERS
+  - TOPIC_TRIGGERS
 job_request: null
 indexes:
-    Sample:
-        - sample
+  Sample:
+    - sample
 returns:
-    -
-        start: Fastq
-        relationship: HAS_MATE_PAIR
-        end: Fastq
+  -
+    start: Fastq
+    relationship: HAS_MATE_PAIR
+    end: Fastq
 aggregate_results: false
 redundant: true
 --- !DatabaseQuery
@@ -23,21 +23,21 @@ redundant: true
 name: relateFastqToReadGroup
 cypher: 'MATCH (fastq:Fastq {readGroup: $read_group, sample: $sample}) MERGE (readGroup:ReadGroup {readGroup: $read_group, sample:$sample}) WITH fastq, readGroup MERGE (readGroup)-[rel:HAS_FASTQ]->(fastq) RETURN readGroup, rel, fastq'
 required_parameters:
-    sample: str
-    read_group: int
+  sample: str
+  read_group: int
 write_transaction: true
 publish_to:
-    - TOPIC_TRIGGERS
+  - TOPIC_TRIGGERS
 job_request: null
 indexes:
-    Fastq:
-        - sample
-        - readGroup
+  Fastq:
+    - sample
+    - readGroup
 returns:
-    -
-        start: ReadGroup
-        relationship: HAS_FASTQ
-        end: Fastq
+  -
+    start: ReadGroup
+    relationship: HAS_FASTQ
+    end: Fastq
 aggregate_results: false
 redundant: true
 --- !DatabaseQuery
@@ -45,24 +45,24 @@ redundant: true
 name: relateReadGroupToSample
 cypher: 'MATCH (readGroup:ReadGroup {sample: $sample}) MERGE (sample:Sample {sample: $sample}) WITH readGroup, sample MERGE (sample)-[rel:HAS_READ_GROUP]->(readGroup) RETURN sample, rel, readGroup'
 required_parameters:
-    sample: str
+  sample: str
 write_transaction: true
 publish_to:
-    - TOPIC_TRIGGERS
+  - TOPIC_TRIGGERS
 job_request: null
 indexes:
-    ReadGroup:
-        - sample
+  ReadGroup:
+    - sample
 returns:
-    -
-        start: Sample
-        relationship: HAS_READ_GROUP
-        end: ReadGroup
+  -
+    start: Sample
+    relationship: HAS_READ_GROUP
+    end: ReadGroup
 aggregate_results: false
 redundant: true
 --- !DatabaseQuery
 name: launchFastqToUbam
-cypher: 'MATCH (sample:Sample {sample: $sample})-[:HAS_READ_GROUP]->(readGroup:ReadGroup {readGroup: $read_group})-[:HAS_FASTQ]->(fastq1:Fastq)-[rel:HAS_MATE_PAIR]->(fastq2:Fastq) WHERE NOT (readGroup)-[:HAS_JOB_REQUEST]->(:JobRequest {name: ''fastq-to-ubam''}) MERGE (readGroup)-[:HAS_JOB_REQUEST]->(:JobRequest {name: ''fastq-to-ubam'', sample: $sample, nodeCreated: datetime(), nodeCreatedEpoch: datetime().epochSeconds}) RETURN fastq1, rel, fastq2'
+cypher: 'MATCH (sample:Sample {sample: $sample})-[:HAS_READ_GROUP]->(readGroup:ReadGroup {readGroup: $read_group})-[:HAS_FASTQ]->(fastq1:Fastq)-[rel:HAS_MATE_PAIR]->(fastq2:Fastq) WHERE NOT (readGroup)-[:HAS_JOB_REQUEST]->(:JobRequest {name: ''fastq-to-ubam''}) MERGE (readGroup)-[rel2:HAS_JOB_REQUEST]->(jobRequest:JobRequest {name: ''fastq-to-ubam'', sample: $sample, readGroup: $read_group, nodeCreated: datetime(), nodeCreatedEpoch: datetime().epochSeconds}) RETURN fastq1, rel, fastq2, readGroup, rel2, jobRequest'
 required_parameters:
   sample: str
   read_group: int
@@ -70,10 +70,17 @@ write_transaction: true
 publish_to:
   - TOPIC_JOB_LAUNCHER
 job_request: fastq-to-ubam
+indexes:
+  Sample:
+    - sample
 returns:
   -
     start: Fastq
     relationship: HAS_MATE_PAIR
     end: Fastq
+  -
+    start: ReadGroup
+    relationship: HAS_JOB_REQUEST
+    end: JobRequest
 aggregate_results: false
 redundant: false
