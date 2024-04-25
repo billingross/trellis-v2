@@ -42,13 +42,14 @@ if ENVIRONMENT == 'google-cloud':
     FUNCTION_NAME = os.environ['K_SERVICE']
     PROJECT_ID = os.environ['PROJECT_ID']
 
-    #config_doc = storage.Client() \
-    #            .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
-    #            .get_blob(os.environ['CREDENTIALS_BLOB']) \
-    #            .download_as_string()
+    # Not loading this locally yet because it contains sensitive information such as the database credentials.
+    configuration_document = storage.Client() \
+                .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
+                .get_blob(os.environ['CREDENTIALS_BLOB']) \
+                .download_as_string()
     # https://stackoverflow.com/questions/6866600/how-to-parse-read-a-yaml-file-into-a-python-object
-    with open("trellis-configuration.yaml", "r") as file_handle:
-        configuration_document = file_handle.read()
+    #with open("trellis-configuration.yaml", "r") as file_handle:
+    #    configuration_document = file_handle.read()
     TRELLIS = yaml.safe_load(configuration_document)
 
     # Pubsub client
