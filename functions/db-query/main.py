@@ -221,7 +221,7 @@ def db_query(event, context, local_driver=None):
             if query.name in QUERY_DICT.keys():
                 raise ValueError(f"Query {query.name} is defined in duplicate.")
             QUERY_DICT[query.name] = query
-        logging.info(f"> db-query: Loaded database queries: {QUERY_DICT}.")
+        logging.debug(f"> db-query: Loaded database queries: {QUERY_DICT}.")
 
     if query_request.custom == True:
         logging.info("> db-query: Processing custom query.")
@@ -311,7 +311,7 @@ def db_query(event, context, local_driver=None):
     try:
         # TODO: Compare the provided query parameters against the 
         # required query parameters
-        logging.info(f"> db-query: Running query: {database_query.name} " +
+        logging.info(f"> db-query: Running query '{database_query.name}' " +
                      f"with parameters: {query_request.query_parameters}.")
         graph, result_summary = query_database(
             driver = DRIVER,
@@ -329,7 +329,7 @@ def db_query(event, context, local_driver=None):
 
     result_available_after = result_summary.result_available_after
     result_consumed_after = result_summary.result_consumed_after
-    logging.info(
+    logging.debug(
                  f"> db-query: Query result available after: {result_available_after} ms, " +
                  f"consumed after: {result_consumed_after} ms.")
     if int(result_available_after) > QUERY_ELAPSED_MAX:

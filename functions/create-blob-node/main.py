@@ -272,7 +272,7 @@ def create_blob_node(event, context, test=False):
     name = event['name']
     bucket_name = event['bucket']
 
-    logging.info(f"> create-blob: Environment: {ENVIRONMENT}.")
+    logging.debug(f"> create-blob: Environment: {ENVIRONMENT}.")
     if ENVIRONMENT == 'google-cloud':
         # Use bucket name to determine which config file should be used
         # to parse object metadata.
@@ -293,7 +293,7 @@ def create_blob_node(event, context, test=False):
     node_kinds = node_module.NodeKinds()
     label_patterns = node_kinds.match_patterns
     label_functions = node_kinds.label_functions
-    logging.info(f"> create-blob: Label patterns: {len(label_patterns)}, label functions: {len(label_functions)}.")
+    logging.debug(f"> create-blob: Label patterns: {len(label_patterns)}, label functions: {len(label_functions)}.")
 
     # Create dict of metadata to add to database node
     #gcp_metadata = event
@@ -306,17 +306,17 @@ def create_blob_node(event, context, test=False):
             uuid = add_uuid_to_blob(
                                     event['bucket'], 
                                     event['name'])
-            logging.info(f"> create-blob: Object UUID added: {uuid}. Exiting.")
+            logging.debug(f"> create-blob: Object UUID added: {uuid}. Exiting.")
             return # Updating metadata will trigger this function again
     else:
         uuid = add_uuid_to_blob(
                         event['bucket'], 
                         event['name'])
-        logging.info(f"> create-blob: Object UUID added: {uuid}. Exiting.")
+        logging.debug(f"> create-blob: Object UUID added: {uuid}. Exiting.")
         return # Updating metadata will trigger this function again
 
     query_parameters = clean_metadata_dict(event)
-    logging.info(f"> create-blob: Cleaned object metadata: {query_parameters}.")
+    logging.debug(f"> create-blob: Cleaned object metadata: {query_parameters}.")
 
     # Add standard fields
     name_fields = get_name_fields(
@@ -343,9 +343,9 @@ def create_blob_node(event, context, test=False):
     query_parameters['triggerOperation'] = TRIGGER_OPERATION
 
     # Populate query_parameters with metadata about object
-    logging.info(f"> create-blob: Query parameter 'path': {query_parameters['path']}.")
+    logging.debug(f"> create-blob: Query parameter 'path': {query_parameters['path']}.")
     query_parameters, labels = assign_labels_and_metadata(query_parameters, label_patterns, label_functions)
-    logging.info(f"> create-blob: Labels assigned to node: {labels}.")
+    logging.debug(f"> create-blob: Labels assigned to node: {labels}.")
 
     labels = get_leaf_labels(labels, TAXONOMY_PARSER)
     logging.info(f"> create-blob: Leaf labels (expect one): {labels}.")
@@ -363,22 +363,16 @@ def create_blob_node(event, context, test=False):
         label = labels[0]
 
     # Generate UUID
-    # NOTE: This reactivates the function and creates an infinte loop 
-    # because also it's activating every time
     if not query_parameters.get('trellisUuid') and ENVIRONMENT == 'google-cloud':
         uuid = add_uuid_to_blob(
                                 query_parameters['bucket'], 
                                 query_parameters['path'])
-        logging.info("> create-blob: The metadata for the blob {} is {}".format(blob.name, blob.metadata))
+        logging.debug("> create-blob: The metadata for the blob {} is {}".format(blob.name, blob.metadata))
         query_parameters['trellisUuid'] = blob.metadata['uuid']
 
 
     # Dynamically create parameterized query
     parameterized_query = create_parameterized_merge_query(label, query_parameters)
-
-    #print(f"> Generating database query for node: {db_dict}.")
-    #db_query = format_node_merge_query(db_dict)
-    #print(f"> Database query: \"{db_query}\".")
 
     query_request = trellis.QueryRequestWriter(
         sender = FUNCTION_NAME,
