@@ -311,8 +311,8 @@ def create_dsub_job_args(job_dict):
         "--disk-size", str(job_dict["diskSize"]),
         "--command", job_dict["command"],
         "--use-private-address",
-        "--network", job_dict["network"],
-        "--subnetwork", job_dict["subnetwork"],
+        #"--network", job_dict["network"],
+        #"--subnetwork", job_dict["subnetwork"],
         "--enable-stackdriver-monitoring",
     ]
 
