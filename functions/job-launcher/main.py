@@ -264,8 +264,8 @@ def create_neo4j_job_dict(task, project_id, trellis_config, start_node, end_node
         "user": trellis_config['DSUB_USER'],
         "regions": trellis_config['DSUB_REGIONS'],
         "project": project_id,
-        "network": trellis_config['DSUB_NETWORK'],
-        "subnetwork": trellis_config['DSUB_SUBNETWORK'],
+        #"network": trellis_config['DSUB_NETWORK'],
+        #"subnetwork": trellis_config['DSUB_SUBNETWORK'],
         # Task specific dsub configuration
         "minCores": task.virtual_machine["min_cores"],
         "minRam": task.virtual_machine["min_ram"],
@@ -349,9 +349,9 @@ def launch_job(event, context):
                         context = context,
                         event = event)
 
-    logging.info(f"+> Received message (context): {query_response.context}.")
-    logging.info(f"> Message header: {query_response.header}.")
-    logging.info(f"> Message body: {query_response.body}.")
+    logging.info(f"> job-launcher: Received message (context): {query_response.context}.")
+    logging.info(f"> job-launcher: Message header: {query_response.header}.")
+    logging.info(f"> job-launcher: Message body: {query_response.body}.")
 
     task_name = query_response.job_request
     task = TASKS[task_name]
@@ -430,9 +430,9 @@ def launch_job(event, context):
     #time.sleep(random_wait)
     
     # Launch dsub job
-    print(f"> Launching dsub with args: {dsub_args}.")
+    logging.info(f"> job-launcher: Launching dsub with args: {dsub_args}.")
     dsub_result = launch_dsub_task(dsub_args)
-    print(f"> Dsub result: {dsub_result}.")
+    logging.info(f"> job-launcher: Dsub result: {dsub_result}.")
     
     if 'job-id' in dsub_result.keys():
         # Add dsub job ID to neo4j database node
@@ -471,10 +471,10 @@ def launch_job(event, context):
             previous_event_id = query_response.event_id,
             job_dict = job_dict)
 
-        print(f"> Pubsub message: {message}.")
+        logging.info(f"> job-launcher: Pubsub message: {message}.")
         result = trellis.utils.publish_to_pubsub_topic(
                     publisher = PUBLISHER,
                     project_id = PROJECT_ID,
                     topic = NEW_JOB_TOPIC,
                     message = message) 
-        print(f"> Published message to {NEW_JOB_TOPIC} with result: {result}.")
+        logging.info(f"> job-launcher: Published message to {NEW_JOB_TOPIC} with result: {result}.")
