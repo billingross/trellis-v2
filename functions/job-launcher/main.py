@@ -431,6 +431,7 @@ def launch_job(event, context):
     #time.sleep(random_wait)
     
     # Launch dsub job
+    """Commenting this all out for development
     logging.info(f"> job-launcher: Launching dsub with args: {dsub_args}.")
     dsub_result = launch_dsub_task(dsub_args)
     logging.info(f"> job-launcher: Dsub result: {dsub_result}.")
@@ -455,6 +456,7 @@ def launch_job(event, context):
             job_dict[f"env_{key}"] = value
         for key, value in job_dict["outputs"].items():
             job_dict[f"output_{key}"] = value
+    """
 
         # Send job metadata to create-job-node function
         """
