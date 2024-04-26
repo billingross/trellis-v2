@@ -435,7 +435,6 @@ def launch_job(event, context):
         query_parameters = job_dict)
     logging.debug(f"> job-launcher: Query request = {query_request}.")
 
-    logging.info(f"> job-launcher: Pubsub message: {message}.")
     result = trellis.utils.publish_to_pubsub_topic(
                 publisher = PUBLISHER,
                 project_id = PROJECT_ID,
