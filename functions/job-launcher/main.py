@@ -433,13 +433,14 @@ def launch_job(event, context):
         previous_event_id = query_response.event_id,
         query_name = "createDsubJobNode",
         query_parameters = job_dict)
-    logging.debug(f"> job-launcher: Query request = {query_request}.")
+    message = query_request.format_json_message()
 
+    logging.info(f"> job-launcher: Query request message = {message}.")
     result = trellis.utils.publish_to_pubsub_topic(
                 publisher = PUBLISHER,
                 project_id = PROJECT_ID,
                 topic = TRELLIS_CONFIG['TOPIC_DB_QUERY'],
-                message = query_request) 
+                message = message) 
     logging.info(f"> job-launcher: Published message to {TRELLIS_CONFIG['TOPIC_DB_QUERY']} with result: {result}.")
 
 
