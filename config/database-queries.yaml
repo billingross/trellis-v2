@@ -62,7 +62,7 @@ aggregate_results: false
 redundant: true
 --- !DatabaseQuery
 name: launchFastqToUbam
-cypher: 'MATCH (sample:Sample {sample: $sample})-[:HAS_READ_GROUP]->(readGroup:ReadGroup {readGroup: $read_group})-[:HAS_FASTQ]->(fastq1:Fastq {matePair: 1})-[rel:HAS_MATE_PAIR]->(fastq2:Fastq {matePair: 2}) WHERE NOT (readGroup)-[:HAS_JOB_REQUEST]->(:JobRequest {name: ''fastq-to-ubam''}) MERGE (readGroup)-[:HAS_JOB_REQUEST]->(:JobRequest {name: ''fastq-to-ubam'', sample: $sample, readGroup: $read_group, nodeCreated: datetime(), nodeCreatedEpoch: datetime().epochSeconds}) RETURN fastq1, rel, fastq2'
+cypher: 'MATCH (sample:Sample {sample: $sample})-[:HAS_READ_GROUP]->(readGroup:ReadGroup {readGroup: $read_group})-[:HAS_FASTQ]->(fastq1:Fastq {matePair: 1})-[rel:HAS_MATE_PAIR]->(fastq2:Fastq {matePair: 2}) WHERE NOT (readGroup)-[:HAS_JOB_REQUEST]->(:JobRequest {name: ''fastq-to-ubam''}) MERGE (readGroup)-[:HAS_JOB_REQUEST]->(:JobRequest {name: ''fastq-to-ubam'', sample: $sample, readGroup: $read_group, nodeCreated: datetime(), nodeCreatedEpoch: datetime().epochSeconds, trellisUuid: apoc.create.uuid() }) RETURN fastq1, rel, fastq2'
 required_parameters:
   sample: str
   read_group: int
@@ -82,5 +82,20 @@ returns:
     start: ReadGroup
     relationship: HAS_JOB_REQUEST
     end: JobRequest
+aggregate_results: false
+redundant: false
+--- !DatabaseQuery
+name: createDsubJobNode
+cypher: 'CREATE (dsubJob:Dsub {name: $name, dsubName: $dsubName, inputHash: $inputHash, inputIds: $inputIds, trellisTaskId: $trellisTaskId, provider: $provider, user: $user, regions: $regions, project: $project, minCores: $minCores, minRam: $minRam, bootDiskSize: $bootDiskSize, image: $image, logging: $logging, diskSize: $diskSize, preemptible: $preemptible, command: $command, envs: $envs, inputs: $inputs, outputs: $outputs, dsubLabels: $dsubLabels}) RETURN dsubJob'
+required_parameters:
+  job_request_uuid: str
+  name: str
+write_transaction: true
+publish_to:
+  - TOPIC_TRIGGERS
+job_request: null
+returns:
+  -
+    start: Dsub
 aggregate_results: false
 redundant: false
