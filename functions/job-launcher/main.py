@@ -457,7 +457,7 @@ def launch_job(event, context):
         for key, value in job_dict["outputs"].items():
             job_dict[f"output_{key}"] = value
     """
-
+    if not ENABLE_JOB_LAUNCH:
         # Send job metadata to create-job-node function
         """
         message = format_pubsub_message(
