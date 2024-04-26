@@ -33,6 +33,7 @@ if ENVIRONMENT == 'google-cloud':
 
     FUNCTION_NAME = os.environ['K_SERVICE']
     PROJECT_ID = os.environ['PROJECT_ID']
+    ENABLE_JOB_LAUNCH = os.environ['ENABLE_JOB_LAUNCH']
 
     # Load Trellis configuration
     config_doc = storage.Client() \
@@ -419,7 +420,7 @@ def launch_job(event, context):
     dsub_args = create_dsub_job_args(job_dict)
 
     # Optional flags
-    if not TRELLIS_CONFIG['ENABLE_JOB_LAUNCH']:
+    if not ENABLE_JOB_LAUNCH:
         dsub_args.append("--dry-run")
 
     # TODO: Need to handle this issue with database logic
@@ -465,16 +466,25 @@ def launch_job(event, context):
         """
 
         # 1.3 update
-        message = trellis.JobCreatedWriter(
+        # TODO: Convert this to use trellisdata.QueryRequestWriter()
+        #message = trellis.JobCreatedWriter(
+        #    sender = FUNCTION_NAME,
+        #    seed_id = query_response.seed_id,
+        #    previous_event_id = query_response.event_id,
+        #    job_dict = job_dict)
+
+        # Create query request
+        query_request = trellis.QueryRequestWriter(
             sender = FUNCTION_NAME,
             seed_id = query_response.seed_id,
             previous_event_id = query_response.event_id,
-            job_dict = job_dict)
+            query_name = "createDsubJobNode",
+            query_parameters = job_dict)
 
         logging.info(f"> job-launcher: Pubsub message: {message}.")
         result = trellis.utils.publish_to_pubsub_topic(
                     publisher = PUBLISHER,
                     project_id = PROJECT_ID,
-                    topic = NEW_JOB_TOPIC,
+                    topic = TRELLIS_CONFIG['TOPIC_DB_QUERY'],
                     message = message) 
-        logging.info(f"> job-launcher: Published message to {NEW_JOB_TOPIC} with result: {result}.")
+        logging.info(f"> job-launcher: Published message to {TRELLIS_CONFIG['TOPIC_DB_QUERY']} with result: {result}.")
