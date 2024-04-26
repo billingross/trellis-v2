@@ -88,8 +88,27 @@ redundant: false
 name: createDsubJobNode
 cypher: 'CREATE (dsubJob:Dsub {name: $name, dsubName: $dsubName, inputHash: $inputHash, inputIds: $inputIds, trellisTaskId: $trellisTaskId, provider: $provider, user: $user, regions: $regions, project: $project, minCores: $minCores, minRam: $minRam, bootDiskSize: $bootDiskSize, image: $image, logging: $logging, diskSize: $diskSize, preemptible: $preemptible, command: $command, envs: $envs, inputs: $inputs, outputs: $outputs, dsubLabels: $dsubLabels}) RETURN dsubJob'
 required_parameters:
-  job_request_uuid: str
   name: str
+  dsubName: str
+  inputHash: str
+  inputIds: list
+  trellisTaskId: str
+  provider: str
+  user: str
+  regions: str
+  project: str
+  minCores: int
+  minRam: float
+  bootDiskSize: int
+  image: str
+  logging: str
+  diskSize: int
+  preemptible: boolean
+  command: str
+  envs: dict
+  inputs: dict
+  outputs: dict
+  dsubLabels: dict
 write_transaction: true
 publish_to:
   - TOPIC_TRIGGERS
