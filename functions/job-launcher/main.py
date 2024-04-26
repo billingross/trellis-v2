@@ -435,7 +435,7 @@ def launch_job(event, context):
     dsub_result = launch_dsub_task(dsub_args)
     logging.info(f"> job-launcher: Dsub result: {dsub_result}.")
     """
-    dsub_result = {'job_id': 'test'}
+    dsub_result = {'job-id': 'test'}
 
     if 'job-id' in dsub_result.keys():
         # Add dsub job ID to neo4j database node
