@@ -462,7 +462,7 @@ def launch_job(event, context):
         del job_dict["inputs"]
         del job_dict["outputs"]
         del job_dict["envs"]
-        del job_dict["dsub_labels"]
+        del job_dict["dsubLabels"]
 
         # Create query request
         query_request = trellis.QueryRequestWriter(
