@@ -105,10 +105,6 @@ required_parameters:
   diskSize: int
   preemptible: bool
   command: str
-  envs: dict
-  inputs: dict
-  outputs: dict
-  dsubLabels: dict
 write_transaction: true
 publish_to:
   - TOPIC_TRIGGERS
