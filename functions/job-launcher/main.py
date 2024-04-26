@@ -423,6 +423,7 @@ def launch_job(event, context):
     logging.debug(f"> job-launcher: Job dictionary = {job_dict}.")
 
     dsub_args = create_dsub_job_args(job_dict)
+    logging.debug(f"> job-launcher: Dsub arguments = {dsub_args}.")
 
     # Moving up for testing
     # Create query request
@@ -432,6 +433,7 @@ def launch_job(event, context):
         previous_event_id = query_response.event_id,
         query_name = "createDsubJobNode",
         query_parameters = job_dict)
+    logging.debug(f"> job-launcher: Query request = {query_request}.")
 
     logging.info(f"> job-launcher: Pubsub message: {message}.")
     result = trellis.utils.publish_to_pubsub_topic(
