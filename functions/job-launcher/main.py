@@ -424,6 +424,24 @@ def launch_job(event, context):
 
     dsub_args = create_dsub_job_args(job_dict)
 
+    # Moving up for testing
+    # Create query request
+    query_request = trellis.QueryRequestWriter(
+        sender = FUNCTION_NAME,
+        seed_id = query_response.seed_id,
+        previous_event_id = query_response.event_id,
+        query_name = "createDsubJobNode",
+        query_parameters = job_dict)
+
+    logging.info(f"> job-launcher: Pubsub message: {message}.")
+    result = trellis.utils.publish_to_pubsub_topic(
+                publisher = PUBLISHER,
+                project_id = PROJECT_ID,
+                topic = TRELLIS_CONFIG['TOPIC_DB_QUERY'],
+                message = message) 
+    logging.info(f"> job-launcher: Published message to {TRELLIS_CONFIG['TOPIC_DB_QUERY']} with result: {result}.")
+
+
     # Optional flags
     if not ENABLE_JOB_LAUNCH:
         dsub_args.append("--dry-run")
