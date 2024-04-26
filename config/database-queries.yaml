@@ -86,7 +86,7 @@ aggregate_results: false
 redundant: false
 --- !DatabaseQuery
 name: createDsubJobNode
-cypher: 'CREATE (dsubJob:Dsub {name: $name, dsubName: $dsubName, inputHash: $inputHash, inputIds: $inputIds, trellisTaskId: $trellisTaskId, provider: $provider, user: $user, regions: $regions, project: $project, minCores: $minCores, minRam: $minRam, bootDiskSize: $bootDiskSize, image: $image, logging: $logging, diskSize: $diskSize, preemptible: $preemptible, command: $command, envs: $envs, inputs: $inputs, outputs: $outputs, dsubLabels: $dsubLabels}) RETURN dsubJob'
+cypher: 'CREATE (dsubJob:Dsub {name: $name, dsubName: $dsubName, inputHash: $inputHash, inputIds: $inputIds, trellisTaskId: $trellisTaskId, provider: $provider, user: $user, regions: $regions, project: $project, minCores: $minCores, minRam: $minRam, bootDiskSize: $bootDiskSize, image: $image, logging: $logging, diskSize: $diskSize, preemptible: $preemptible, command: $command}) RETURN dsubJob'
 required_parameters:
   name: str
   dsubName: str
