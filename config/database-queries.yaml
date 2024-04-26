@@ -103,7 +103,7 @@ required_parameters:
   image: str
   logging: str
   diskSize: int
-  preemptible: boolean
+  preemptible: bool
   command: str
   envs: dict
   inputs: dict
