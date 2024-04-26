@@ -439,7 +439,7 @@ def launch_job(event, context):
                 publisher = PUBLISHER,
                 project_id = PROJECT_ID,
                 topic = TRELLIS_CONFIG['TOPIC_DB_QUERY'],
-                message = message) 
+                message = query_request) 
     logging.info(f"> job-launcher: Published message to {TRELLIS_CONFIG['TOPIC_DB_QUERY']} with result: {result}.")
 
 
