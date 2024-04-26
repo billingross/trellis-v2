@@ -425,42 +425,18 @@ def launch_job(event, context):
     dsub_args = create_dsub_job_args(job_dict)
     logging.debug(f"> job-launcher: Dsub arguments = {dsub_args}.")
 
-    # Moving up for testing
-    # Create query request
-    query_request = trellis.QueryRequestWriter(
-        sender = FUNCTION_NAME,
-        seed_id = query_response.seed_id,
-        previous_event_id = query_response.event_id,
-        query_name = "createDsubJobNode",
-        query_parameters = job_dict)
-    message = query_request.format_json_message()
-
-    logging.info(f"> job-launcher: Query request message = {message}.")
-    result = trellis.utils.publish_to_pubsub_topic(
-                publisher = PUBLISHER,
-                project_id = PROJECT_ID,
-                topic = TRELLIS_CONFIG['TOPIC_DB_QUERY'],
-                message = message) 
-    logging.info(f"> job-launcher: Published message to {TRELLIS_CONFIG['TOPIC_DB_QUERY']} with result: {result}.")
-
-
     # Optional flags
-    if not ENABLE_JOB_LAUNCH:
+    if ENABLE_JOB_LAUNCH == 'false':
         dsub_args.append("--dry-run")
-
-    # TODO: Need to handle this issue with database logic
-    # Wait a random time interval to reduce overlapping db queries
-    #   because of ubam objects created at same time.
-    #random_wait = random.randrange(0,10)
-    #print(f"> Waiting for {random_wait} seconds to launch job.")
-    #time.sleep(random_wait)
     
     # Launch dsub job
     """Commenting this all out for development
     logging.info(f"> job-launcher: Launching dsub with args: {dsub_args}.")
     dsub_result = launch_dsub_task(dsub_args)
     logging.info(f"> job-launcher: Dsub result: {dsub_result}.")
-    
+    """
+    dsub_result = {'job_id': 'test'}
+
     if 'job-id' in dsub_result.keys():
         # Add dsub job ID to neo4j database node
         job_dict['dsubJobId'] = dsub_result['job-id']
@@ -481,24 +457,6 @@ def launch_job(event, context):
             job_dict[f"env_{key}"] = value
         for key, value in job_dict["outputs"].items():
             job_dict[f"output_{key}"] = value
-    """
-    if ENABLE_JOB_LAUNCH == "false":
-        # Send job metadata to create-job-node function
-        """
-        message = format_pubsub_message(
-                                        job_dict = job_dict, 
-                                        #nodes = nodes,
-                                        seed_id = seed_id,
-                                        event_id = event_id)
-        """
-
-        # 1.3 update
-        # TODO: Convert this to use trellisdata.QueryRequestWriter()
-        #message = trellis.JobCreatedWriter(
-        #    sender = FUNCTION_NAME,
-        #    seed_id = query_response.seed_id,
-        #    previous_event_id = query_response.event_id,
-        #    job_dict = job_dict)
 
         # Create query request
         query_request = trellis.QueryRequestWriter(
@@ -507,6 +465,7 @@ def launch_job(event, context):
             previous_event_id = query_response.event_id,
             query_name = "createDsubJobNode",
             query_parameters = job_dict)
+        message = query_request.format_json_message()
 
         logging.info(f"> job-launcher: Pubsub message: {message}.")
         result = trellis.utils.publish_to_pubsub_topic(
