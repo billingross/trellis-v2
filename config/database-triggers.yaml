@@ -45,4 +45,3 @@ relationship:
 end:
     label: Fastq
 query: launchFastqToUbam
-
