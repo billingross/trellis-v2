@@ -458,6 +458,12 @@ def launch_job(event, context):
         for key, value in job_dict["outputs"].items():
             job_dict[f"output_{key}"] = value
 
+        # Remove dicts from the job_dict because Neo4j can't handle them.
+        del job_dict[inputs]
+        del job_dict[outputs]
+        del job_dict[envs]
+        del job_dict[dsub_labels]
+
         # Create query request
         query_request = trellis.QueryRequestWriter(
             sender = FUNCTION_NAME,
