@@ -362,17 +362,21 @@ def launch_job(event, context):
     elif query_response.relationship:
         start, rel, end = validate_relationship_inputs(query_response, task)
         nodes = [start, end]
+    logging.info(f"> job-launcher: Job nodes = {nodes}.")
 
     job_id, trunc_nodes_hash = trellis.utils.make_unique_task_id(nodes=nodes)
+    logging.debug(f"> job-launcher: Job ID = {job_id}.")
     
     # inputIds used to create relationships via trigger
     input_ids = []
     for node in nodes:
         input_ids.append(node['id'])
+    logging.debug(f"> job-launcher: Input IDs = {input_ids}.")
 
     # Define logging & outputs after task_id
     task_name = query_response.job_request
     task = TASKS[task_name]
+    logging.debug(f"> job-launcher: Task = {task}.")
     """
     job_dict = {
                 "provider": "google-v2",
@@ -416,6 +420,7 @@ def launch_job(event, context):
                                job_id = job_id,
                                input_ids = input_ids,
                                trunc_nodes_hash = trunc_nodes_hash)
+    logging.debug(f"> job-launcher: Job dictionary = {job_dict}.")
 
     dsub_args = create_dsub_job_args(job_dict)
 
