@@ -201,17 +201,18 @@ def launch_job(event, context):
     # Check that there is only one node
     # Check that it is a JobRequest node
     if len(query_response.nodes) > 1:
-        raise ValueError("Expected a single JobRequest node, but got multiple nodes.")
+        raise ValueError("> job-launcher: Expected a single JobRequest node, but got multiple nodes.")
     
     job_request_node = query_response.nodes[0]
     if not 'JobRequest' in job_request_node['labels']:
-        raise ValueError("Expected node to have label 'JobRequest', but it does not: {job_request_node['labels']}.")
+        raise ValueError("> job-launcher: Expected node to have label 'JobRequest', but it does not: {job_request_node['labels']}.")
 
     # Set the JobRequest node properties to be environment variables
     # so that when the function loads the task configuration file,
     # it automatically populates the variable values with those
     # from the the JobRequest node that are now stored as environment
     # variables.
+    logging.debug(f"> job-launcher: JobRequest node properties = {job_request_node['properties']}")
     for key, value in job_request_node['properties'].items():
         os.environ[key] = value
 
