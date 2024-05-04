@@ -1,0 +1,32 @@
+name: fastq-to-ubam
+job_request_id: ${jobRequestUuid}
+project: ${PROJECT_ID}
+parameters:
+  - sample
+  - readGroup
+  - jobRequestUuid
+virtual_machine:
+  min_cores: "1"
+  min_ram: "7.5"
+  boot_disk_size: "20"
+  disk_size: "500"
+  preemptible: False
+  image: us.gcr.io/broad-gatk/gatk:4.2.0.0
+  regions: ${DSUB_REGIONS}
+dsub:
+  user: trellis
+  provider: google-v2
+  logging: "gs://${DSUB_LOG_BUCKET}/fastq-to-ubam/${jobRequestUuid/logs",
+  inputs:
+      FASTQ_R1: "${sample}/HAS_READ_GROUP/${readGroup}/HAS_PAIRED_END_FASTQ/*R1.fastq.gz$"
+      FASTQ_R2: "${sample}/HAS_READ_GROUP/${readGroup}/HAS_PAIRED_END_FASTQ/*R2.fastq.gz$"
+  environment_variables:
+      RG: "${readGroup}"
+      SM: "${sample}"
+      PL: "illumina"
+  outputs:
+      UBAM: "/${sample}/HAS_READ_GROUP/{readGroup}/HAS_PAIRED_END_FASTQ/${jobRequestUuid}_${sample}_${readGroup}.ubam"
+  script: "scripts/fastq-to-ubam.sh"
+  labels:
+    read-group: "${readGroup}"
+    sample: "${sample}"
