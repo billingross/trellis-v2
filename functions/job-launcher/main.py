@@ -187,11 +187,13 @@ def launch_job(event, context):
     """
     dsub_result = {'job-id': 'test'}
 
+    # Disable: EnvYAML does not support item assignment.
     if 'job-id' in dsub_result.keys():
+        job_node = {}
         # Add dsub job ID to neo4j database node
-        job_configuration['dsubJobId'] = dsub_result['job-id']
-        job_configuration['dstatCmd'] = (
-                                 "dstat " +
+        job_node['dsubJobId'] = dsub_result['job-id']
+        job_node['dstatCmd'] = (
+                                "dstat " +
                                 f"--project {job_configuration['project']} " +
                                 f"--provider {job_configuration['provider']} " +
                                 f"--jobs '{job_configuration['dsubJobId']}' " +
@@ -210,11 +212,12 @@ def launch_job(event, context):
             job_dict[f"output_{key}"] = value
         """
 
+        # TypeError: 'EnvYAML' object does not support item deletion
         # Remove dicts from the job_dict because Neo4j can't handle them.
-        del job_configuration["dsub.inputs"]
-        del job_configuration["dsub.outputs"]
-        del job_configuration["dsub.environment_variables"]
-        del job_configuration["dsub.labels"]
+        #del job_configuration["dsub.inputs"]
+        #del job_configuration["dsub.outputs"]
+        #del job_configuration["dsub.environment_variables"]
+        #del job_configuration["dsub.labels"]
 
         # Create query request
         query_request = trellis.QueryRequestWriter(
@@ -222,7 +225,7 @@ def launch_job(event, context):
             seed_id = query_response.seed_id,
             previous_event_id = query_response.event_id,
             query_name = "createDsubJobNode",
-            query_parameters = job_configuration)
+            query_parameters = job_node)
         message = query_request.format_json_message()
 
         logging.info(f"> job-launcher: Pubsub message: {message}.")
