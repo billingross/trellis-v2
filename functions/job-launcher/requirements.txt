@@ -4,3 +4,4 @@ google-cloud-pubsub>=0.40.0
 google-cloud-logging>=3.0.0
 trellisdata>=0.1.26
 pyyaml>=6.0.1
+envyaml>=1.10
