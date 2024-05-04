@@ -125,7 +125,7 @@ def create_dsub_job_args_OLD(job_dict):
 
     return dsub_args
 
-def create_dsub_job_args(task_configuration):
+def create_dsub_job_args(job_configuration):
     """ Convert the job description dictionary into a list
         of dsub supported arguments.
 
@@ -137,31 +137,31 @@ def create_dsub_job_args(task_configuration):
     """
 
     dsub_args = [
-        "--name", task_configuration['name'],
-        "--label", f"job-request-id={task_configuration['job_request_id']}",
+        "--name", job_configuration['name'],
+        "--label", f"job-request-id={job_configuration['job_request_id']}",
 
-        "--project", task_configuration["project"],
-        "--min-cores", task_configuration['virtual_machine.minCores'], 
-        "--min-ram", task_configuration['virtual_machine.minRam'],
-        "--boot-disk-size", task_configuration['virtual_machine.bootDiskSize'],
-        "--disk-size", task_configuration["virtual_machine.diskSize"],
-        "--image", task_configuration["virtual_machine.image"],
-        "--provider", task_configuration["dsub.provider"],
-        "--regions", task_configuration["dsub.regions"],
-        "--user", task_configuration["dsub.user"], 
-        "--logging", task_configuration["dsub.logging"],
-        "--script", task_configuration["dsub.script"],
+        "--project", job_configuration["project"],
+        "--min-cores", job_configuration['virtual_machine.minCores'], 
+        "--min-ram", job_configuration['virtual_machine.minRam'],
+        "--boot-disk-size", job_configuration['virtual_machine.bootDiskSize'],
+        "--disk-size", job_configuration["virtual_machine.diskSize"],
+        "--image", job_configuration["virtual_machine.image"],
+        "--provider", job_configuration["dsub.provider"],
+        "--regions", job_configuration["dsub.regions"],
+        "--user", job_configuration["dsub.user"], 
+        "--logging", job_configuration["dsub.logging"],
+        "--script", job_configuration["dsub.script"],
         "--use-private-address",
         "--enable-stackdriver-monitoring",
     ]
 
-    if task_configuration.get('network'):
-        dsub_args['--network'] = task_configuration['network']
-    if task_configuration.get('subnetwork'):
-        dsub_args['--subnetwork'] = task_configuration['subnetwork']
+    if job_configuration.get('network'):
+        dsub_args['--network'] = job_configuration['network']
+    if job_configuration.get('subnetwork'):
+        dsub_args['--subnetwork'] = job_configuration['subnetwork']
 
     # Argument lists
-    for key, value in task_configuration["dsub.inputs"].items():
+    for key, value in job_configuration["dsub.inputs"].items():
         dsub_args.extend([
                           "--input", 
                           f"{key}={value}"])
@@ -221,12 +221,12 @@ def launch_job(event, context):
 
     # Get the name of the JobRequest
     # Using the name, get the JobLauncher configuration
-    #task_configuration = TASKS[job_request_node['name']]
-    task_name = job_request_node['properties']['name']
-    task_configuration = EnvYAML(f'tasks/{task_name}.yaml')
+    #job_configuration = TASKS[job_request_node['name']]
+    job_name = job_request_node['properties']['name']
+    job_configuration = EnvYAML(f'jobs/{job_name}.yaml')
 
     #dsub_args = create_dsub_job_args(job_dict)
-    dsub_args = create_dsub_job_args(task_configuration)
+    dsub_args = create_dsub_job_args(job_configuration)
     logging.debug(f"> job-launcher: Dsub arguments = {dsub_args}.")
 
     # Optional flags
@@ -243,8 +243,8 @@ def launch_job(event, context):
 
     if 'job-id' in dsub_result.keys():
         # Add dsub job ID to neo4j database node
-        task_configuration['dsubJobId'] = dsub_result['job-id']
-        task_configuration['dstatCmd'] = (
+        job_configuration['dsubJobId'] = dsub_result['job-id']
+        job_configuration['dstatCmd'] = (
                                  "dstat " +
                                 f"--project {job_dict['project']} " +
                                 f"--provider {job_dict['provider']} " +
@@ -256,7 +256,7 @@ def launch_job(event, context):
 
         """I think I'm trying to hard with this. Just going to drop it for now.
         # Format inputs for neo4j database
-        for key, value in task_configuration["dsub.inputs"].items():
+        for key, value in job_configuration["dsub.inputs"].items():
             job_dict[f"input_{key}"] = value
         for key, value in job_dict["envs"].items():
             job_dict[f"env_{key}"] = value
@@ -265,10 +265,10 @@ def launch_job(event, context):
         """
 
         # Remove dicts from the job_dict because Neo4j can't handle them.
-        del task_configuration["dsub.inputs"]
-        del task_configuration["dsub.outputs"]
-        del task_configuration["dsub.environment_variables"]
-        del task_configuration["dsub.labels"]
+        del job_configuration["dsub.inputs"]
+        del job_configuration["dsub.outputs"]
+        del job_configuration["dsub.environment_variables"]
+        del job_configuration["dsub.labels"]
 
         # Create query request
         query_request = trellis.QueryRequestWriter(
@@ -276,7 +276,7 @@ def launch_job(event, context):
             seed_id = query_response.seed_id,
             previous_event_id = query_response.event_id,
             query_name = "createDsubJobNode",
-            query_parameters = task_configuration)
+            query_parameters = job_configuration)
         message = query_request.format_json_message()
 
         logging.info(f"> job-launcher: Pubsub message: {message}.")
