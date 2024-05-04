@@ -16,7 +16,7 @@ virtual_machine:
 dsub:
   user: trellis
   provider: google-v2
-  logging: "gs://${JOB_LOGS_BUCKET}/fastq-to-ubam/${jobRequestUuid}/logs",
+  logging: "gs://${JOB_LOGS_BUCKET}/fastq-to-ubam/${jobRequestUuid}/logs"
   inputs:
       FASTQ_R1: "${sample}/HAS_READ_GROUP/${readGroup}/HAS_PAIRED_END_FASTQ/*R1.fastq.gz$"
       FASTQ_R2: "${sample}/HAS_READ_GROUP/${readGroup}/HAS_PAIRED_END_FASTQ/*R2.fastq.gz$"
