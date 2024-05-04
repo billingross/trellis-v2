@@ -214,7 +214,7 @@ def launch_job(event, context):
     # variables.
     logging.debug(f"> job-launcher: JobRequest node properties = {job_request_node['properties']}")
     for key, value in job_request_node['properties'].items():
-        os.environ[key] = value
+        os.environ[key] = str(value)
 
     # TODO: Try using EnvYAML to load task configurations and replace
     # environment variables. Source: https://pypi.org/project/envyaml/
