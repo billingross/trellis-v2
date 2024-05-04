@@ -72,59 +72,6 @@ def launch_dsub_task(dsub_args):
         #return(sys.exc_info())
     return(result)
 
-def create_dsub_job_args_OLD(job_dict):
-    """ Convert the job description dictionary into a list
-        of dsub supported arguments.
-
-    Args:
-        neo4j_job_dict (dict): Event payload.
-    Returns:
-        list: List of "--arg", "value" pairs which will
-            be passed to dsub.
-    """
-
-    dsub_args = [
-        "--name", job_dict["dsubName"],
-        "--label", f"trellis-id={job_dict['trellisTaskId']}",
-        "--label", f"trellis-name={job_dict['name']}",
-        "--label", f"wdl-call-alias={job_dict['name']}",
-        "--provider", job_dict["provider"], 
-        "--user", job_dict["user"], 
-        "--regions", job_dict["regions"],
-        "--project", job_dict["project"],
-        "--min-cores", str(job_dict["minCores"]), 
-        "--min-ram", str(job_dict["minRam"]),
-        "--boot-disk-size", str(job_dict["bootDiskSize"]), 
-        "--image", job_dict["image"], 
-        "--logging", job_dict["logging"],
-        "--disk-size", str(job_dict["diskSize"]),
-        "--command", job_dict["command"],
-        "--use-private-address",
-        #"--network", job_dict["network"],
-        #"--subnetwork", job_dict["subnetwork"],
-        "--enable-stackdriver-monitoring",
-    ]
-
-    # Argument lists
-    for key, value in job_dict["inputs"].items():
-        dsub_args.extend([
-                          "--input", 
-                          f"{key}={value}"])
-    for key, value in job_dict['envs'].items():
-        dsub_args.extend([
-                          "--env",
-                          f"{key}={value}"])
-    for key, value in job_dict['outputs'].items():
-        dsub_args.extend([
-                          "--output",
-                          f"{key}={value}"])
-    for key, value in job_dict['dsubLabels'].items():
-        dsub_args.extend([
-                          "--label",
-                          f"{key}={value}"])
-
-    return dsub_args
-
 def create_dsub_job_args(job_configuration):
     """ Convert the job description dictionary into a list
         of dsub supported arguments.
@@ -141,10 +88,10 @@ def create_dsub_job_args(job_configuration):
         "--label", f"job-request-id={job_configuration['job_request_id']}",
 
         "--project", job_configuration["project"],
-        "--min-cores", job_configuration['virtual_machine.minCores'], 
-        "--min-ram", job_configuration['virtual_machine.minRam'],
-        "--boot-disk-size", job_configuration['virtual_machine.bootDiskSize'],
-        "--disk-size", job_configuration["virtual_machine.diskSize"],
+        "--min-cores", job_configuration['virtual_machine.min_cores'], 
+        "--min-ram", job_configuration['virtual_machine.min_ram'],
+        "--boot-disk-size", job_configuration['virtual_machine.boot_disk_size'],
+        "--disk-size", job_configuration["virtual_machine.disk_size"],
         "--image", job_configuration["virtual_machine.image"],
         "--provider", job_configuration["dsub.provider"],
         "--regions", job_configuration["dsub.regions"],
