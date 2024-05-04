@@ -345,7 +345,7 @@ def db_query(event, context, local_driver=None):
         previous_event_id = query_request.event_id,
         query_name = query_request.query_name,
         graph = graph,
-        job_request = database_query.job_request,
+        job_request = None,
         result_summary = result_summary)
 
     logging.info(f"> db-query: Query response nodes: {[list(node.labels) for node in query_response.nodes]}")
