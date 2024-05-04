@@ -112,15 +112,15 @@ def create_dsub_job_args(job_configuration):
         dsub_args.extend([
                           "--input", 
                           f"{key}={value}"])
-    for key, value in job_dict['dsub.environment_variables'].items():
+    for key, value in job_configuration['dsub.environment_variables'].items():
         dsub_args.extend([
                           "--env",
                           f"{key}={value}"])
-    for key, value in job_dict['dsub.outputs'].items():
+    for key, value in job_configuration['dsub.outputs'].items():
         dsub_args.extend([
                           "--output",
                           f"{key}={value}"])
-    for key, value in job_dict['dsub.labels'].items():
+    for key, value in job_configuration['dsub.labels'].items():
         dsub_args.extend([
                           "--label",
                           f"{key}={value}"])
@@ -172,7 +172,6 @@ def launch_job(event, context):
     job_name = job_request_node['properties']['name']
     job_configuration = EnvYAML(f'jobs/{job_name}.yaml')
 
-    #dsub_args = create_dsub_job_args(job_dict)
     dsub_args = create_dsub_job_args(job_configuration)
     logging.debug(f"> job-launcher: Dsub arguments = {dsub_args}.")
 
@@ -193,10 +192,10 @@ def launch_job(event, context):
         job_configuration['dsubJobId'] = dsub_result['job-id']
         job_configuration['dstatCmd'] = (
                                  "dstat " +
-                                f"--project {job_dict['project']} " +
-                                f"--provider {job_dict['provider']} " +
-                                f"--jobs '{job_dict['dsubJobId']}' " +
-                                f"--users '{job_dict['user']}' " +
+                                f"--project {job_configuration['project']} " +
+                                f"--provider {job_configuration['provider']} " +
+                                f"--jobs '{job_configuration['dsubJobId']}' " +
+                                f"--users '{job_configuration['user']}' " +
                                  "--full " +
                                  "--format json " +
                                  "--status '*'")
