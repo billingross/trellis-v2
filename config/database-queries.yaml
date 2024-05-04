@@ -7,7 +7,7 @@ required_parameters:
 write_transaction: true
 publish_to:
   - TOPIC_TRIGGERS
-job_request: null
+#job_request: null
 indexes:
   Sample:
     - sample
@@ -28,7 +28,7 @@ required_parameters:
 write_transaction: true
 publish_to:
   - TOPIC_TRIGGERS
-job_request: null
+#job_request: null
 indexes:
   Fastq:
     - sample
@@ -49,7 +49,7 @@ required_parameters:
 write_transaction: true
 publish_to:
   - TOPIC_TRIGGERS
-job_request: null
+#job_request: null
 indexes:
   ReadGroup:
     - sample
@@ -62,31 +62,25 @@ aggregate_results: false
 redundant: true
 --- !DatabaseQuery
 name: launchFastqToUbam
-cypher: 'MATCH (sample:Sample {sample: $sample})-[:HAS_READ_GROUP]->(readGroup:ReadGroup {readGroup: $read_group})-[:HAS_FASTQ]->(fastq1:Fastq {matePair: 1})-[rel:HAS_MATE_PAIR]->(fastq2:Fastq {matePair: 2}) WHERE NOT (readGroup)-[:HAS_JOB_REQUEST]->(:JobRequest {name: ''fastq-to-ubam''}) MERGE (readGroup)-[:HAS_JOB_REQUEST]->(:JobRequest {name: ''fastq-to-ubam'', sample: $sample, readGroup: $read_group, nodeCreated: datetime(), nodeCreatedEpoch: datetime().epochSeconds, trellisUuid: apoc.create.uuid() }) RETURN fastq1, rel, fastq2'
+cypher: 'MATCH (sample:Sample {sample: $sample})-[:HAS_READ_GROUP]->(readGroup:ReadGroup {readGroup: $read_group})-[:HAS_FASTQ]->(fastq1:Fastq {matePair: 1})-[rel:HAS_MATE_PAIR]->(fastq2:Fastq {matePair: 2}) WHERE NOT (readGroup)-[:HAS_JOB_REQUEST]->(:JobRequest {name: ''fastq-to-ubam''}) MERGE (readGroup)-[:HAS_JOB_REQUEST]->(jobRequest:JobRequest {name: ''fastq-to-ubam'', sample: $sample, readGroup: $read_group, nodeCreated: datetime(), nodeCreatedEpoch: datetime().epochSeconds, trellisUuid: randomUUID() }) MERGE (fastq1)<-[:REQUESTED_INPUT]-(jobRequest)-[:REQUESTED_INPUT]->(fastq2) RETURN jobRequest'
 required_parameters:
   sample: str
   read_group: int
 write_transaction: true
 publish_to:
   - TOPIC_JOB_LAUNCHER
-job_request: fastq-to-ubam
+#job_request: fastq-to-ubam
 indexes:
   Sample:
     - sample
 returns:
   -
-    start: Fastq
-    relationship: HAS_MATE_PAIR
-    end: Fastq
-  -
-    start: ReadGroup
-    relationship: HAS_JOB_REQUEST
-    end: JobRequest
+    start: JobRequest
 aggregate_results: false
 redundant: false
 --- !DatabaseQuery
 name: createDsubJobNode
-cypher: 'CREATE (dsubJob:Dsub {name: $name, dsubName: $dsubName, inputHash: $inputHash, inputIds: $inputIds, trellisTaskId: $trellisTaskId, provider: $provider, user: $user, regions: $regions, project: $project, minCores: $minCores, minRam: $minRam, bootDiskSize: $bootDiskSize, image: $image, logging: $logging, diskSize: $diskSize, preemptible: $preemptible, command: $command}) RETURN dsubJob'
+cypher: 'CREATE (dsubJob:Dsub {name: $name, dsubName: $dsubName, inputHash: $inputHash, inputIds: $inputIds, trellisTaskId: $trellisTaskId, provider: $provider, user: $user, regions: $regions, project: $project, minCores: $minCores, minRam: $minRam, bootDiskSize: $bootDiskSize, image: $image, logging: $logging, diskSize: $diskSize, preemptible: $preemptible, command: $command, jobRequestUuid: $jobRequestUuid}) RETURN dsubJob'
 required_parameters:
   name: str
   dsubName: str
@@ -105,10 +99,11 @@ required_parameters:
   diskSize: int
   preemptible: bool
   command: str
+  jobRequestUuid: str
 write_transaction: true
 publish_to:
   - TOPIC_TRIGGERS
-job_request: null
+#job_request: null
 returns:
   -
     start: Dsub
