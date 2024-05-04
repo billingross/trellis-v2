@@ -200,7 +200,7 @@ def launch_job(event, context):
     # TODO: Get and validate the JobRequest node
     # Check that there is only one node
     # Check that it is a JobRequest node
-    if len(query_response.nodes) > 1
+    if len(query_response.nodes) > 1:
         raise ValueError("Expected a single JobRequest node, but got multiple nodes.")
     
     job_request_node = query_response.nodes[0]
