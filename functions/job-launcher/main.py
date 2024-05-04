@@ -17,6 +17,8 @@ from google.cloud import pubsub
 from datetime import datetime
 from dsub.commands import dsub
 
+from envyaml import EnvYAML
+
 ENVIRONMENT = os.environ.get('ENVIRONMENT')
 if ENVIRONMENT == 'google-cloud':
     # Set up the Google Cloud Logging python client library
@@ -56,6 +58,10 @@ if ENVIRONMENT == 'google-cloud':
 
     PUBLISHER = pubsub.PublisherClient()
 
+"""DEPRECATED: All these functions are deprecated since I am
+simplifying the process for launching tasks to just use 
+a JobRequest node and YAML configuration file to get 
+all job parameters.
 def _get_job_values(task, start, end, params):
     supported_value_types = {
         "int": int,
@@ -151,66 +157,6 @@ def validate_relationship_inputs(query_response, task):
         raise ValueError("Relationship is not of type: {rel_type}.")
     return start, rel, end
 
-def parse_inputs(query_response):
-    if not query_response.relationship:
-        raise ValueError("Query response does not have relationship. " +
-                         "Expected (Fastq)-[]->(Fastq).")
-    r1 = query_response.relationship['start_node']
-    rel = query_response.relationship['type']
-    r2 = query_response.relationship['end_node']
-
-    if not 'Fastq' in r1['labels'] and 'Fastq' in r2['labels']:
-        raise ValueError(
-                         "Both nodes do not have 'Fastq' labels." +
-                         f"Fastq R1 labels: {r1['labels']}." +
-                         f"Fastq R2 labels: {r2['labels']}.")
-
-    if not r1['properties']['readGroup'] == r2['properties']['readGroup']:
-        return ValueError(
-                          "Fastqs are not from the same read group. " +
-                          f"Fastq R1 read group: {r1['properties']['readGroup']}. " +
-                          f"Fastq R2 read group: {r2['properties']['readGroup']}.")
-    if not r1['properties']['matePair'] == 1 and r2['properties']['matePair'] == 2:
-        return ValueError(
-                          "Fastqs are not a correctly oriented mate pair. " +
-                          f"Fastq R1 mate pair value (expect 1): {r1['properties']['matePair']}. " +
-                          f"Fastq R2 mate pair value (expect 2): {r2['properties']['matePair']}.")
-    
-    fastq_fields = []
-    for fastq in [r1, r2]:
-        fastq_fields.extend([
-                             fastq['properties']['plate'], 
-                             fastq['properties']['sample'],
-                             fastq['properties']['readGroup']])
-    if len(set(fastq_fields)) != 3:
-        raise ValueError(f"> Fastq fields are not in agreement: {fastq_fields}.")
-
-    return r1, r2
-
-def launch_dsub_task(dsub_args):
-    try:
-        result = dsub.dsub_main('dsub', dsub_args)
-    except ValueError as exception:
-        logging.error(f'Problem with dsub arguments: {dsub_args}')
-        raise
-    except:
-        print("> Unexpected error:", sys.exc_info())
-        raise
-        #for arg in dsub_args:
-        #    print(arg)
-        #return(sys.exc_info())
-    return(result)
-
-def write_metadata_to_blob(meta_blob_path, metadata):
-    try:
-        meta_blob = storage.Client(project=PROJECT_ID) \
-            .get_bucket(OUT_BUCKET) \
-            .blob(meta_blob_path) \
-            .upload_from_string(json.dumps(metadata))
-        return True
-    except:
-        return False
-
 def create_neo4j_job_dict(task, project_id, trellis_config, start_node, end_node, job_id, input_ids, trunc_nodes_hash):
     """ Create a dictionary with all the values required
         to launch a dsub job for this task. This dictionary will
@@ -231,6 +177,7 @@ def create_neo4j_job_dict(task, project_id, trellis_config, start_node, end_node
             dictionary: Dsub job arguments
     """
 
+    """ Get rid of all this jazz
     env_variables = _get_job_values(
                                     task = task,
                                     start = start_node,
@@ -251,14 +198,16 @@ def create_neo4j_job_dict(task, project_id, trellis_config, start_node, end_node
                                     task = task, 
                                     start = start_node,
                                     end = end_node)
+    """
 
     # Use camelcase keys for this dict because it will be added to Neo4j
     # database where camelcase is the standard.
     job_dict = {
         "name": task.name,
-        "dsubName": f"{task.dsub_prefix}-{trunc_nodes_hash[0:5]}",
-        "inputHash": trunc_nodes_hash,
-        "inputIds": input_ids,
+        #"dsubName": f"{task.dsub_prefix}-{trunc_nodes_hash[0:5]}",
+        #"inputHash": trunc_nodes_hash,
+        #"inputIds": input_ids,
+        #"trellisTaskName": f"{}"
         "trellisTaskId": job_id,
         # Standard dsub configuration
         "provider": "google-v2",
@@ -277,14 +226,29 @@ def create_neo4j_job_dict(task, project_id, trellis_config, start_node, end_node
         "preemptible": task.dsub['preemptible'],
         "command": task.dsub['command'],
         # Parameterized values
-        "envs": env_variables,
-        "inputs": inputs,
+        "envs": task.env_variables,
+        "inputs": task.inputs,
         "outputs": outputs,
         "dsubLabels": dsub_labels
     }
     return job_dict
+"""
 
-def create_dsub_job_args(job_dict):
+def launch_dsub_task(dsub_args):
+    try:
+        result = dsub.dsub_main('dsub', dsub_args)
+    except ValueError as exception:
+        logging.error(f'Problem with dsub arguments: {dsub_args}')
+        raise
+    except:
+        print("> Unexpected error:", sys.exc_info())
+        raise
+        #for arg in dsub_args:
+        #    print(arg)
+        #return(sys.exc_info())
+    return(result)
+
+def create_dsub_job_args_OLD(job_dict):
     """ Convert the job description dictionary into a list
         of dsub supported arguments.
 
@@ -337,6 +301,61 @@ def create_dsub_job_args(job_dict):
 
     return dsub_args
 
+def create_dsub_job_args(task_configuration):
+    """ Convert the job description dictionary into a list
+        of dsub supported arguments.
+
+    Args:
+        neo4j_job_dict (dict): Event payload.
+    Returns:
+        list: List of "--arg", "value" pairs which will
+            be passed to dsub.
+    """
+
+    dsub_args = [
+        "--name", task_configuration['name'],
+        "--label", f"job-request-id={task_configuration['job_request_id']}",
+
+        "--project", task_configuration["project"],
+        "--min-cores", task_configuration['virtual_machine.minCores'], 
+        "--min-ram", task_configuration['virtual_machine.minRam'],
+        "--boot-disk-size", task_configuration['virtual_machine.bootDiskSize'],
+        "--disk-size", task_configuration["virtual_machine.diskSize"],
+        "--image", task_configuration["virtual_machine.image"],
+        "--provider", task_configuration["dsub.provider"],
+        "--regions", task_configuration["dsub.regions"],
+        "--user", task_configuration["dsub.user"], 
+        "--logging", task_configuration["dsub.logging"],
+        "--script", task_configuration["dsub.script"],
+        "--use-private-address",
+        "--enable-stackdriver-monitoring",
+    ]
+
+    if task_configuration.get('network'):
+        dsub_args['--network'] = task_configuration['network']
+    if task_configuration.get('subnetwork'):
+        dsub_args['--subnetwork'] = task_configuration['subnetwork']
+
+    # Argument lists
+    for key, value in task_configuration["dsub.inputs"].items():
+        dsub_args.extend([
+                          "--input", 
+                          f"{key}={value}"])
+    for key, value in job_dict['dsub.environment_variables'].items():
+        dsub_args.extend([
+                          "--env",
+                          f"{key}={value}"])
+    for key, value in job_dict['dsub.outputs'].items():
+        dsub_args.extend([
+                          "--output",
+                          f"{key}={value}"])
+    for key, value in job_dict['dsub.labels'].items():
+        dsub_args.extend([
+                          "--label",
+                          f"{key}={value}"])
+
+    return dsub_args
+
 def launch_job(event, context):
     """When an object node is added to the database, launch any
        jobs corresponding to that node label.
@@ -354,63 +373,36 @@ def launch_job(event, context):
     logging.info(f"> job-launcher: Message header: {query_response.header}.")
     logging.info(f"> job-launcher: Message body: {query_response.body}.")
 
-    task_name = query_response.job_request
-    task = TASKS[task_name]
-
-    if query_response.nodes:
-        nodes = parse_node_inputs(query_response, task)
-    elif query_response.relationship:
-        start, rel, end = validate_relationship_inputs(query_response, task)
-        nodes = [start, end]
-    logging.info(f"> job-launcher: Job nodes = {nodes}.")
-
-    job_id, trunc_nodes_hash = trellis.utils.make_unique_task_id(nodes=nodes)
-    logging.debug(f"> job-launcher: Job ID = {job_id}.")
+    # TODO: Get and validate the JobRequest node
+    # Check that there is only one node
+    # Check that it is a JobRequest node
+    if len(query_response.nodes) > 1
+        raise ValueError("Expected a single JobRequest node, but got multiple nodes.")
     
-    # inputIds used to create relationships via trigger
-    input_ids = []
-    for node in nodes:
-        input_ids.append(node['id'])
-    logging.debug(f"> job-launcher: Input IDs = {input_ids}.")
+    job_request_node = query_response.nodes[0]
+    if not 'JobRequest' in job_request_node['labels']:
+        raise ValueError("Expected node to have label 'JobRequest', but it does not: {job_request_node['labels']}.")
 
-    # Define logging & outputs after task_id
-    task_name = query_response.job_request
-    task = TASKS[task_name]
-    logging.debug(f"> job-launcher: Task = {task}.")
-    """
-    job_dict = {
-                "provider": "google-v2",
-                "user": TRELLIS_CONFIG['DSUB_USER'],
-                "regions": TRELLIS_CONFIG['REGIONS'],
-                "project": TRELLIS_CONFIG['PROJECT_ID'],
-                "minCores": task.virtual_machine["min_cores"],
-                "minRam": task.virtual_machine["min_ram"],
-                "bootDiskSize": task.virtual_machine["boot_disk_size"],
-                "image": f"gcr.io/{TRELLIS_CONFIG['PROJECT_ID']}/{task.virtual_machine['image']}",
-                "logging": f"gs://{LOG_BUCKET}/{task_name}/{task_id}/logs",
-                "diskSize": task.virtual_machine['disk_size'],
-                "command": task.dsub['command']
-                "envs": task.environment_variables
-                "inputs": {
-                           "FASTQ_R1": f"gs://{fastq_r1['properties']['bucket']}/{fastq_r1['properties']['path']}",
-                           "FASTQ_R2": f"gs://{fastq_r2['properties']['bucket']}/{fastq_r2['properties']['path']}"
-                },
-                "outputs": {
-                            "UBAM": f"gs://{OUT_BUCKET}/{plate}/{sample}/{task_name}/{task_id}/output/{sample}_{read_group}.ubam"
-                },
-                "trellisTaskId": task_id,
-                "preemptible": task.dsub['preemptible'],
-                #"sample": sample,
-                #"plate": plate,
-                #"readGroup": read_group,
-                "name": task_name,
-                "inputHash": trunc_nodes_hash,
-                #"labels": ["Job", "Dsub", unique_task_label],
-                "inputIds": input_ids,
-                "network": TRELLIS_CONFIG['NETWORK'],
-                "subnetwork": TRELLIS_CONFIG['SUBNETWORK'],
-    }
-    """
+    # Set the JobRequest node properties to be environment variables
+    # so that when the function loads the task configuration file,
+    # it automatically populates the variable values with those
+    # from the the JobRequest node that are now stored as environment
+    # variables.
+    for key, value in job_request_node['properties'].items():
+        os.environ[key] = value
+
+    # TODO: Try using EnvYAML to load task configurations and replace
+    # environment variables. Source: https://pypi.org/project/envyaml/
+
+    # Get the name of the JobRequest
+    # Using the name, get the JobLauncher configuration
+    #task_configuration = TASKS[job_request_node['name']]
+    task_name = job_request_node['properties']['name']
+    task_configuration = EnvYAML(f'tasks/{task_name}.yaml')
+
+    # Why do I need this? Why can't I just use the task_configuration
+    # variable directly?
+    """I'm pretty sure I can.
     job_dict = create_neo4j_job_dict(
                                task = task,
                                project_id = PROJECT_ID,
@@ -421,8 +413,10 @@ def launch_job(event, context):
                                input_ids = input_ids,
                                trunc_nodes_hash = trunc_nodes_hash)
     logging.debug(f"> job-launcher: Job dictionary = {job_dict}.")
+    """
 
-    dsub_args = create_dsub_job_args(job_dict)
+    #dsub_args = create_dsub_job_args(job_dict)
+    dsub_args = create_dsub_job_args(task_configuration)
     logging.debug(f"> job-launcher: Dsub arguments = {dsub_args}.")
 
     # Optional flags
@@ -439,8 +433,8 @@ def launch_job(event, context):
 
     if 'job-id' in dsub_result.keys():
         # Add dsub job ID to neo4j database node
-        job_dict['dsubJobId'] = dsub_result['job-id']
-        job_dict['dstatCmd'] = (
+        task_configuration['dsubJobId'] = dsub_result['job-id']
+        task_configuration['dstatCmd'] = (
                                  "dstat " +
                                 f"--project {job_dict['project']} " +
                                 f"--provider {job_dict['provider']} " +
@@ -450,19 +444,21 @@ def launch_job(event, context):
                                  "--format json " +
                                  "--status '*'")
 
+        """I think I'm trying to hard with this. Just going to drop it for now.
         # Format inputs for neo4j database
-        for key, value in job_dict["inputs"].items():
+        for key, value in task_configuration["dsub.inputs"].items():
             job_dict[f"input_{key}"] = value
         for key, value in job_dict["envs"].items():
             job_dict[f"env_{key}"] = value
         for key, value in job_dict["outputs"].items():
             job_dict[f"output_{key}"] = value
+        """
 
         # Remove dicts from the job_dict because Neo4j can't handle them.
-        del job_dict["inputs"]
-        del job_dict["outputs"]
-        del job_dict["envs"]
-        del job_dict["dsubLabels"]
+        del task_configuration["dsub.inputs"]
+        del task_configuration["dsub.outputs"]
+        del task_configuration["dsub.environment_variables"]
+        del task_configuration["dsub.labels"]
 
         # Create query request
         query_request = trellis.QueryRequestWriter(
@@ -470,7 +466,7 @@ def launch_job(event, context):
             seed_id = query_response.seed_id,
             previous_event_id = query_response.event_id,
             query_name = "createDsubJobNode",
-            query_parameters = job_dict)
+            query_parameters = task_configuration)
         message = query_request.format_json_message()
 
         logging.info(f"> job-launcher: Pubsub message: {message}.")
