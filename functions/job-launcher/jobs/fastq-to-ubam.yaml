@@ -12,10 +12,10 @@ virtual_machine:
   disk_size: "500"
   preemptible: False
   image: us.gcr.io/broad-gatk/gatk:4.2.0.0
-  regions: ${JOB_REGIONS}
 dsub:
   user: trellis
   provider: google-v2
+  regions: ${JOB_REGIONS}
   logging: "gs://${JOB_LOGS_BUCKET}/fastq-to-ubam/${jobRequestUuid}/logs"
   inputs:
       FASTQ_R1: "${sample}/HAS_READ_GROUP/${readGroup}/HAS_PAIRED_END_FASTQ/*R1.fastq.gz$"
