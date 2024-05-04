@@ -6,7 +6,7 @@ parameters:
   - readGroup
   - jobRequestUuid
 virtual_machine:
-  min_cores: 1
+  min_cores: "1"
   min_ram: "7.5"
   boot_disk_size: "20"
   disk_size: "500"
