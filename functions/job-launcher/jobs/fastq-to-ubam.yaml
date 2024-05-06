@@ -10,7 +10,6 @@ virtual_machine:
   min_ram: "7.5"
   boot_disk_size: "20"
   disk_size: "500"
-  preemptible: False
   image: us.gcr.io/broad-gatk/gatk:4.2.0.0
 dsub:
   user: trellis
