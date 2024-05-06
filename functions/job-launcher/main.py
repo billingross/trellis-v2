@@ -49,12 +49,12 @@ if ENVIRONMENT == 'google-cloud':
     #                    .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
     #                    .get_blob(TRELLIS_CONFIG["JOB_LAUNCHER_CONFIG"]) \
     #                    .download_as_string()
-    with open("job-launcher.yaml", 'r') as file_handle:
-        launcher_document = file_handle.read()
-    task_generator = yaml.load_all(launcher_document, Loader=yaml.FullLoader)
-    TASKS = {}
-    for task in task_generator:
-        TASKS[task.name] = task
+    #with open("job-launcher.yaml", 'r') as file_handle:
+    #    launcher_document = file_handle.read()
+    #task_generator = yaml.load_all(launcher_document, Loader=yaml.FullLoader)
+    #TASKS = {}
+    #for task in task_generator:
+    #    TASKS[task.name] = task
 
     PUBLISHER = pubsub.PublisherClient()
 

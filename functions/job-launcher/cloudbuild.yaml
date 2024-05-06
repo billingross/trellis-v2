@@ -1,8 +1,8 @@
 steps:
-- name: 'ubuntu'
-  args: ['cp',
-         'config/job-launcher.yaml',
-         'functions/job-launcher/']
+#- name: 'ubuntu'
+#  args: ['cp',
+#         'config/job-launcher.yaml',
+#         'functions/job-launcher/']
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   args: [
          'gcloud',
