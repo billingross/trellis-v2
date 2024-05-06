@@ -80,32 +80,25 @@ aggregate_results: false
 redundant: false
 --- !DatabaseQuery
 name: createDsubJobNode
-cypher: 'CREATE (dsubJob:Dsub {name: $name, dsubName: $dsubName, inputHash: $inputHash, inputIds: $inputIds, trellisTaskId: $trellisTaskId, provider: $provider, user: $user, regions: $regions, project: $project, minCores: $minCores, minRam: $minRam, bootDiskSize: $bootDiskSize, image: $image, logging: $logging, diskSize: $diskSize, preemptible: $preemptible, command: $command, jobRequestUuid: $jobRequestUuid}) RETURN dsubJob'
+cypher: 'CREATE (dsubJob:Dsub {name: $name, dsubJobId: $dsubJobId, dstatCmd: $dstatCmd, jobRequestId: $jobRequestId, minCores: $minCores, minRam: $minRam, bootDiskSize: $bootDiskSize, diskSize: $diskSize, image: $image, logging: $logging, script: $script, provider: $provider}) RETURN dsubJob'
 required_parameters:
   name: str
-  dsubName: str
-  inputHash: str
-  inputIds: list
-  trellisTaskId: str
-  provider: str
-  user: str
-  regions: str
-  project: str
+  dsubJobId: str
+  dstatCmd: str
+  jobRequestId: str
   minCores: int
   minRam: float
   bootDiskSize: int
+  diskSize: int
   image: str
   logging: str
-  diskSize: int
-  preemptible: bool
-  command: str
-  jobRequestUuid: str
+  script: str
+  provider: str
 write_transaction: true
 publish_to:
   - TOPIC_TRIGGERS
-#job_request: null
 returns:
   -
-    start: Dsub
+    start: DsubJob
 aggregate_results: false
 redundant: false

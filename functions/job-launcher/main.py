@@ -194,13 +194,26 @@ def launch_job(event, context):
         job_node['dsubJobId'] = dsub_result['job-id']
         job_node['dstatCmd'] = (
                                 "dstat " +
-                                f"--project {job_configuration['project']} " +
-                                f"--provider {job_configuration['provider']} " +
-                                f"--jobs '{job_configuration['dsubJobId']}' " +
-                                f"--users '{job_configuration['user']}' " +
+                                f"--project {job_configuration['dproject']} " +
+                                f"--provider {job_configuration['dsub.provider']} " +
+                                f"--jobs '{dsub_result['job-id']}' " +
+                                f"--users '{job_configuration['dsub.user']}' " +
                                  "--full " +
                                  "--format json " +
                                  "--status '*'")
+        job_node['name'] = job_configuration['name']
+        job_node['jobRequestId'] = job_configuration['job_request_id']
+        # Virtual machine parameters
+        job_node['minCores'] = int(job_configuration['virtual_machine.min_cores'])
+        job_node['minRam'] = float(job_configuration['virtual_machine.min_ram'])
+        job_node['bootDiskSize'] = int(job_configuration['virtual_machine.boot_disk_size'])
+        job_node['diskSize'] = int(job_configuration['virtual_machine.disk_size'])
+        job_node['image'] = job_configuration['virtual_machine.image']
+        # Dsub parameters
+        job_node['logging'] = job_configuration['dsub.logging']
+        job_node['script'] = job_configuration['dsub.script']
+        job_node['provider'] = job_configuration['dsub.provider']
+
 
         """I think I'm trying to hard with this. Just going to drop it for now.
         # Format inputs for neo4j database
