@@ -15,7 +15,7 @@ dsub:
   user: trellis
   provider: google-v2
   regions: ${JOB_REGIONS}
-  logging: "gs://${JOB_LOGS_BUCKET}/fastq-to-ubam/${jobRequestI d}/logs"
+  logging: "gs://${JOB_LOGS_BUCKET}/fastq-to-ubam/${jobRequestId}/logs"
   inputs:
       FASTQ_R1: "${sample}/HAS_READ_GROUP/${readGroup}/HAS_PAIRED_END_FASTQ/*R1.fastq.gz$"
       FASTQ_R2: "${sample}/HAS_READ_GROUP/${readGroup}/HAS_PAIRED_END_FASTQ/*R2.fastq.gz$"
