@@ -1,10 +1,10 @@
 name: fastq-to-ubam
-job_request_id: ${jobRequestUuid}
+job_request_id: ${jobRequestId}
 project: ${PROJECT_ID}
 parameters:
   - sample
   - readGroup
-  - jobRequestUuid
+  - jobRequestId
 virtual_machine:
   min_cores: "1"
   min_ram: "7.5"
@@ -15,7 +15,7 @@ dsub:
   user: trellis
   provider: google-v2
   regions: ${JOB_REGIONS}
-  logging: "gs://${JOB_LOGS_BUCKET}/fastq-to-ubam/${jobRequestUuid}/logs"
+  logging: "gs://${JOB_LOGS_BUCKET}/fastq-to-ubam/${jobRequestI d}/logs"
   inputs:
       FASTQ_R1: "${sample}/HAS_READ_GROUP/${readGroup}/HAS_PAIRED_END_FASTQ/*R1.fastq.gz$"
       FASTQ_R2: "${sample}/HAS_READ_GROUP/${readGroup}/HAS_PAIRED_END_FASTQ/*R2.fastq.gz$"
@@ -24,7 +24,7 @@ dsub:
       SM: "${sample}"
       PL: "illumina"
   outputs:
-      UBAM: "/${sample}/HAS_READ_GROUP/{readGroup}/HAS_PAIRED_END_FASTQ/${jobRequestUuid}_${sample}_${readGroup}.ubam"
+      UBAM: "/${sample}/HAS_READ_GROUP/{readGroup}/HAS_PAIRED_END_FASTQ/${jobRequestId}_${sample}_${readGroup}.ubam"
   script: "scripts/fastq-to-ubam.sh"
   labels:
     read-group: "${readGroup}"
