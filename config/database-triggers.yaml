@@ -45,3 +45,12 @@ relationship:
 end:
     label: Fastq
 query: launchFastqToUbam
+--- !DatabaseTrigger
+name: RelateDsubJobToJobRequest
+pattern: node
+start:
+    label: DsubJob
+    properties:
+        jobRequestId: jobRequestId
+        dsubJobId: dsubJobId
+query: relateDsubJobToJobRequest

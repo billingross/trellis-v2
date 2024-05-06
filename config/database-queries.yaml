@@ -80,9 +80,11 @@ aggregate_results: false
 redundant: false
 --- !DatabaseQuery
 name: createDsubJobNode
-cypher: 'CREATE (dsubJob:DsubJob {name: $name, dsubJobId: $dsubJobId, dstatCmd: $dstatCmd, jobRequestId: $jobRequestId, minCores: $minCores, minRam: $minRam, bootDiskSize: $bootDiskSize, diskSize: $diskSize, image: $image, logging: $logging, script: $script, provider: $provider}) RETURN dsubJob'
+cypher: 'CREATE (dsubJob:DsubJob {name: $name, sample: $sample, readGroup: $readGroup, dsubJobId: $dsubJobId, dstatCmd: $dstatCmd, jobRequestId: $jobRequestId, minCores: $minCores, minRam: $minRam, bootDiskSize: $bootDiskSize, diskSize: $diskSize, image: $image, logging: $logging, script: $script, provider: $provider}) RETURN dsubJob'
 required_parameters:
   name: str
+  sample: str
+  readGroup: int
   dsubJobId: str
   dstatCmd: str
   jobRequestId: str
@@ -100,5 +102,21 @@ publish_to:
 returns:
   -
     start: DsubJob
+aggregate_results: false
+redundant: false
+--- !DatabaseQuery
+name: relateDsubJobToJobRequest
+cypher: 'MATCH (jobRequest:JobRequest {jobRequestId: $jobRequestId}), (dsubJob:DsubJob {dsubJobId: $dsubJobId}) MERGE (jobRequest)-[rel:LAUNCHED]->(dsubJob) RETURN jobRequest, rel, dsubJob'
+required_parameters:
+  jobRequestId: str
+  dsubJobId: str
+write_transaction: true
+publish_to:
+  - TOPIC_TRIGGERS
+returns:
+  -
+    start: JobRequest
+    relationship: LAUNCHED
+    end: DsubJob
 aggregate_results: false
 redundant: false
