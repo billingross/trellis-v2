@@ -80,7 +80,7 @@ aggregate_results: false
 redundant: false
 --- !DatabaseQuery
 name: createDsubJobNode
-cypher: 'CREATE (dsubJob:Dsub {name: $name, dsubJobId: $dsubJobId, dstatCmd: $dstatCmd, jobRequestId: $jobRequestId, minCores: $minCores, minRam: $minRam, bootDiskSize: $bootDiskSize, diskSize: $diskSize, image: $image, logging: $logging, script: $script, provider: $provider}) RETURN dsubJob'
+cypher: 'CREATE (dsubJob:DsubJob {name: $name, dsubJobId: $dsubJobId, dstatCmd: $dstatCmd, jobRequestId: $jobRequestId, minCores: $minCores, minRam: $minRam, bootDiskSize: $bootDiskSize, diskSize: $diskSize, image: $image, logging: $logging, script: $script, provider: $provider}) RETURN dsubJob'
 required_parameters:
   name: str
   dsubJobId: str

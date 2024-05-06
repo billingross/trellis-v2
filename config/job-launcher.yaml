@@ -1,12 +1,12 @@
---- !JobLauncher
+# DEPRECATED: Jobs now configured by individual YAMLs in the job-launcher/jobs directory
+--- !TaskConfiguration
 name: fastq-to-ubam
 dsub_prefix: fq2u
-inputs:
-  nodes:
-  relationship:
-    start: Fastq
-    type: HAS_MATE_PAIR
-    end: Fastq
+job_request_id: ${jobRequestUuid}
+parameters:
+  - sample
+  - readGroup
+  - jobRequestUuid
 virtual_machine:
   min_cores: 1
   min_ram: 7.5
@@ -16,26 +16,14 @@ virtual_machine:
 dsub:
   preemptible: False
   inputs:
-      FASTQ_R1: 
-        template: "{uri}"
-        source: start
-      FASTQ_R2: 
-        template: "{uri}"
-        source: end
+      FASTQ_R1: "{sample}/HAS_READ_GROUP/{readGroup}/HAS_PAIRED_END_FASTQ/*R1.fastq.gz$"
+      FASTQ_R2: "{sample}/HAS_READ_GROUP/{readGroup}/HAS_PAIRED_END_FASTQ/*R2.fastq.gz$"
   env_variables:
-      RG: 
-        template: "{readGroup}"
-        source: start
-        value_type: int
-      SM: 
-        template: "{sample}"
-        source: start
-      PL: 
-        value: "illumina"
+      RG: "{readGroup}"
+      SM: "{sample}"
+      PL: "illumina"
   outputs:
-      UBAM: 
-        template: "{plate}/{sample}/{sample}_{readGroup}.ubam"
-        source: start
+      UBAM: "/{sample}/HAS_READ_GROUP/{readGroup}/HAS_PAIRED_END_FASTQ/{jobRequestUuid}_{sample}_{readGroup}.ubam"
   command: "/gatk/gatk --java-options
     \\'-Xmx8G -Djava.io.tmpdir=bla\\'
     FastqToSam
@@ -46,13 +34,6 @@ dsub:
     -SM ${SM}
     -PL ${PL}"
   labels:
-    read-group: 
-      template: "{readGroup}"
-      source: start
-    sample: 
-      template: "{sample}"
-      source: start
-    plate: 
-      template: "{plate}"
-      source: start
+    read-group: "{readGroup}"
+    sample: "{sample}"
   
