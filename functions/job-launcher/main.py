@@ -44,18 +44,6 @@ if ENVIRONMENT == 'google-cloud':
                 .download_as_string()
     TRELLIS_CONFIG = yaml.safe_load(config_doc)
 
-    # Load launcher configuration
-    #launcher_document = storage.Client() \
-    #                    .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
-    #                    .get_blob(TRELLIS_CONFIG["JOB_LAUNCHER_CONFIG"]) \
-    #                    .download_as_string()
-    #with open("job-launcher.yaml", 'r') as file_handle:
-    #    launcher_document = file_handle.read()
-    #task_generator = yaml.load_all(launcher_document, Loader=yaml.FullLoader)
-    #TASKS = {}
-    #for task in task_generator:
-    #    TASKS[task.name] = task
-
     PUBLISHER = pubsub.PublisherClient()
 
 def launch_dsub_task(dsub_args):
@@ -67,9 +55,6 @@ def launch_dsub_task(dsub_args):
     except:
         print("> Unexpected error:", sys.exc_info())
         raise
-        #for arg in dsub_args:
-        #    print(arg)
-        #return(sys.exc_info())
     return(result)
 
 def create_dsub_job_args(job_configuration):
