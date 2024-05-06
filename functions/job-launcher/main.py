@@ -194,7 +194,7 @@ def launch_job(event, context):
         job_node['dsubJobId'] = dsub_result['job-id']
         job_node['dstatCmd'] = (
                                 "dstat " +
-                                f"--project {job_configuration['dproject']} " +
+                                f"--project {job_configuration['project']} " +
                                 f"--provider {job_configuration['dsub.provider']} " +
                                 f"--jobs '{dsub_result['job-id']}' " +
                                 f"--users '{job_configuration['dsub.user']}' " +
