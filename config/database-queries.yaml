@@ -104,7 +104,7 @@ aggregate_results: false
 redundant: false
 --- !DatabaseQuery
 name: relateDsubJobToJobRequest
-cypher: 'MATCH (jobRequest:JobRequest {jobRequestId: $jobRequestId})-[:REQUESTED_INPUT]->(input), (dsubJob:DsubJob {dsubJobId: $dsubJobId}) MERGE (jobRequest)-[rel:LAUNCHED]->(dsubJob)<-[:WAS_USED_BY]-(input) RETURN jobRequest, rel, dsubJob'
+cypher: 'MATCH (jobRequest:JobRequest {jobRequestId: $jobRequestId})-[:REQUESTED_INPUT]->(input), (dsubJob:DsubJob {dsubJobId: $dsubJobId}) MERGE (jobRequest)-[rel:LAUNCHED]->(dsubJob) MERGE (input)-[:WAS_USED_BY]->(dsubJob) RETURN jobRequest, rel, dsubJob'
 required_parameters:
   jobRequestId: str
   dsubJobId: str
