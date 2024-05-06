@@ -62,7 +62,7 @@ aggregate_results: false
 redundant: true
 --- !DatabaseQuery
 name: launchFastqToUbam
-cypher: 'MATCH (sample:Sample {sample: $sample})-[:HAS_READ_GROUP]->(readGroup:ReadGroup {readGroup: $read_group})-[:HAS_FASTQ]->(fastq1:Fastq {matePair: 1})-[rel:HAS_MATE_PAIR]->(fastq2:Fastq {matePair: 2}) WHERE NOT (readGroup)-[:HAS_JOB_REQUEST]->(:JobRequest {name: ''fastq-to-ubam''}) MERGE (readGroup)-[:HAS_JOB_REQUEST]->(jobRequest:JobRequest {name: ''fastq-to-ubam'', sample: $sample, readGroup: $read_group, nodeCreated: datetime(), nodeCreatedEpoch: datetime().epochSeconds, jobRequestUuid: randomUUID() }) MERGE (fastq1)<-[:REQUESTED_INPUT]-(jobRequest)-[:REQUESTED_INPUT]->(fastq2) RETURN jobRequest'
+cypher: 'MATCH (sample:Sample {sample: $sample})-[:HAS_READ_GROUP]->(readGroup:ReadGroup {readGroup: $read_group})-[:HAS_FASTQ]->(fastq1:Fastq {matePair: 1})-[rel:HAS_MATE_PAIR]->(fastq2:Fastq {matePair: 2}) WHERE NOT (readGroup)-[:HAS_JOB_REQUEST]->(:JobRequest {name: ''fastq-to-ubam''}) MERGE (readGroup)-[:HAS_JOB_REQUEST]->(jobRequest:JobRequest {name: ''fastq-to-ubam'', sample: $sample, readGroup: $read_group, nodeCreated: datetime(), nodeCreatedEpoch: datetime().epochSeconds, jobRequestId: randomUUID() }) MERGE (fastq1)<-[:REQUESTED_INPUT]-(jobRequest)-[:REQUESTED_INPUT]->(fastq2) RETURN jobRequest'
 required_parameters:
   sample: str
   read_group: int
