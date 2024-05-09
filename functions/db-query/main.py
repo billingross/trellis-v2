@@ -207,11 +207,6 @@ def db_query(event, context, local_driver=None):
     # is launched in development mode to make sure queries are current.
     DEVELOPMENT = os.environ.get('DEVELOPMENT')
     if DEVELOPMENT:
-        #queries_document = storage.Client() \
-        #                .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
-        #                .get_blob(TRELLIS["USER_DEFINED_QUERIES"]) \
-        #                .download_as_string()
-        #queries = yaml.load_all(queries_document, Loader=yaml.FullLoader)
         with open("database-queries.yaml", 'r') as file_handle:
             queries_document = file_handle.read()
         queries = yaml.load_all(queries_document, Loader=yaml.FullLoader)
