@@ -1,0 +1,23 @@
+steps:
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  args: [
+         'gcloud',
+         'beta',
+         'functions',
+         'deploy',
+         'trellis-add-object-metadata-${_BUCKET_SHORT_NAME}',
+         '--project=${PROJECT_ID}',
+         '--source=functions/add-object-metadata',
+         '--memory=256MB',
+         '--max-instances=100',
+         '--entry-point=add-object-metadata',
+         '--runtime=python312',
+         '--region=us-west2',
+         '--gen2',
+         '--trigger-location=us-west2',
+         '--trigger-resource=${_TRIGGER_BUCKET}',
+         '--trigger-event=${_TRIGGER_EVENT}',
+         '--update-env-vars=ENVIRONMENT=${_ENVIRONMENT}',
+         '--update-env-vars=PROJECT_ID=${PROJECT_ID}',
+         '--update-labels=user=trellis',
+  ]
