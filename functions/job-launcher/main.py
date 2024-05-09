@@ -36,13 +36,7 @@ if ENVIRONMENT == 'google-cloud':
     FUNCTION_NAME = os.environ['K_SERVICE']
     PROJECT_ID = os.environ['PROJECT_ID']
     ENABLE_JOB_LAUNCH = os.environ['ENABLE_JOB_LAUNCH']
-
-    # Load Trellis configuration
-    config_doc = storage.Client() \
-                .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
-                .get_blob(os.environ['CREDENTIALS_BLOB']) \
-                .download_as_string()
-    TRELLIS_CONFIG = yaml.safe_load(config_doc)
+    TOPIC_DB_QUERY = os.environ['TOPIC_DB_QUERY']
 
     PUBLISHER = pubsub.PublisherClient()
 
@@ -230,6 +224,6 @@ def launch_job(event, context):
         result = trellis.utils.publish_to_pubsub_topic(
                     publisher = PUBLISHER,
                     project_id = PROJECT_ID,
-                    topic = TRELLIS_CONFIG['TOPIC_DB_QUERY'],
+                    topic = TOPIC_DB_QUERY,
                     message = message) 
-        logging.info(f"> job-launcher: Published message to {TRELLIS_CONFIG['TOPIC_DB_QUERY']} with result: {result}.")
+        logging.info(f"> job-launcher: Published message to {TOPIC_DB_QUERY} with result: {result}.")
