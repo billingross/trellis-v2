@@ -17,14 +17,14 @@ dsub:
   regions: ${JOB_REGIONS}
   logging: "gs://${JOB_LOGS_BUCKET}/fastq-to-ubam/${jobRequestId}/logs"
   inputs:
-      FASTQ_R1: "${sample}/HAS_READ_GROUP/${readGroup}/HAS_PAIRED_END_FASTQ/*R1.fastq.gz$"
-      FASTQ_R2: "${sample}/HAS_READ_GROUP/${readGroup}/HAS_PAIRED_END_FASTQ/*R2.fastq.gz$"
+      FASTQ_R1: "${sample}/HAS_READ_GROUP/${readGroup}/HAS_FASTQ/*R1.fastq.gz$"
+      FASTQ_R2: "${sample}/HAS_READ_GROUP/${readGroup}/HAS_FASTQ/*R2.fastq.gz$"
   environment_variables:
       RG: "${readGroup}"
       SM: "${sample}"
       PL: "illumina"
   outputs:
-      UBAM: "/${sample}/HAS_READ_GROUP/{readGroup}/HAS_PAIRED_END_FASTQ/${jobRequestId}_${sample}_${readGroup}.ubam"
+      UBAM: "/${sample}/HAS_READ_GROUP/{readGroup}/HAS_FASTQ/${jobRequestId}_${sample}_${readGroup}.ubam"
   script: "scripts/fastq-to-ubam.sh"
   labels:
     read-group: "${readGroup}"
