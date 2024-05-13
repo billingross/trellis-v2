@@ -16,7 +16,7 @@ steps:
          '--gen2',
          '--trigger-location=us-west2',
          '--trigger-resource=${_TRIGGER_BUCKET}',
-         '--trigger-event=finalize',
+         '--trigger-event=${_TRIGGER_EVENT}',
          '--update-env-vars=ENVIRONMENT=${_ENVIRONMENT}',
          '--update-env-vars=PROJECT_ID=${PROJECT_ID}',
          '--update-labels=user=trellis',
