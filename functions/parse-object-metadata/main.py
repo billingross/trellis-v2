@@ -132,7 +132,7 @@ def parse_object_metadata(event, context, test=False):
     metadata_fields.update(time_fields)
 
     # Add UUID to object metadata
-    metadata_fields['trellisUuid'] = uuuid.uuid4()
+    metadata_fields['trellisUuid'] = uuid.uuid4()
 
     # Add Google Cloud Storage event metadata
     metadata_fields['size'] = event['size']
