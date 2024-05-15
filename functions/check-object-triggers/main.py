@@ -116,8 +116,10 @@ def check_object_triggers(event, context, test=False):
     
     seed_id = context.event_id
 
+    logging.info(f"> check-object-triggers: Matching database query patterns.")
     queries_to_request = match_database_queries(event['name'], event['metadata'])
 
+    logging.info(f"> check-object-triggers: Object matched {len(queries_to_request)} query patterns.")
     for query_name, parameters in queries_to_request.items():
         # Create query request
         query_request = trellis.QueryRequestWriter(
@@ -128,7 +130,7 @@ def check_object_triggers(event, context, test=False):
             query_parameters = parameters)
 
         message = query_request.format_json_message()
-        logging.info(f"> check-object-triggers: Topic: {TOPIC_DB_QUERY}, message: {message}.")
+        logging.info(f"> check-object-triggers: Publishing message '{message}' to topic '{TOPIC_DB_QUERY}'.")
         if ENVIRONMENT == 'google-cloud':
             result = trellis.utils.publish_to_pubsub_topic(
                 publisher = PUBLISHER,
