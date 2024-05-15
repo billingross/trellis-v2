@@ -1,0 +1,24 @@
+steps:
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  args: [
+         'gcloud',
+         'beta',
+         'functions',
+         'deploy',
+         'trellis-check-object-triggers-${_BUCKET_SHORT_NAME}',
+         '--project=${PROJECT_ID}',
+         '--source=functions/check-object-triggers',
+         '--memory=256MB',
+         '--max-instances=100',
+         '--entry-point=check_object_triggers',
+         '--runtime=python312',
+         '--region=us-west2',
+         '--gen2',
+         '--trigger-location=us-west2',
+         '--trigger-resource=${_TRIGGER_BUCKET}',
+         '--trigger-event=google.storage.object.metadataUpdate',
+         '--update-env-vars=ENVIRONMENT=${_ENVIRONMENT}',
+         '--update-env-vars=PROJECT_ID=${PROJECT_ID}',
+         '--update-env-vars=TOPIC_DB_QUERY=${_TOPIC_DB_QUERY}',
+         '--update-labels=user=trellis',
+  ]

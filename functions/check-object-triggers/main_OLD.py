@@ -26,39 +26,82 @@ if ENVIRONMENT == 'google-cloud':
     # use Python's standard logging library to send logs to GCP
     import logging
 
-    #FUNCTION_NAME = os.environ['FUNCTION_NAME']
     FUNCTION_NAME = os.environ['K_SERVICE']
     TRIGGER_OPERATION = os.environ['TRIGGER_OPERATION']
-    #TRIGGER_OPERATION = os.environ['FUNCTION_SIGNATURE_TYPE']
-    #GIT_COMMIT_HASH = os.environ['GIT_COMMIT_HASH']
-    #GIT_VERSION_TAG = os.environ['GIT_VERSION_TAG']
-    #GCP_PROJECT = os.environ['GCP_PROJECT']
     PROJECT_ID = os.environ['PROJECT_ID']
-
-    config_doc = storage.Client() \
-                .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
-                .get_blob(os.environ['CREDENTIALS_BLOB']) \
-                .download_as_string()
-    # https://stackoverflow.com/questions/6866600/how-to-parse-read-a-yaml-file-into-a-python-object
-    TRELLIS = yaml.safe_load(config_doc)
+    TOPIC_DB_QUERY = os.environ['TOPIC_DB_QUERY']
 
     PUBLISHER = pubsub.PublisherClient()
+    # Storage client is used for adding UUIDs to blobs
     STORAGE_CLIENT = storage.Client()
 
-    # Need to pull this from GCS
-    label_taxonomy = storage.Client() \
-                        .get_bucket(os.environ['CREDENTIALS_BUCKET']) \
-                        .get_blob(TRELLIS['LABEL_TAXONOMY']) \
-                        .download_as_string()
-
-    TAXONOMY_PARSER = trellis.utils.TaxonomyParser()
-    TAXONOMY_PARSER.read_from_string(label_taxonomy)
+    TAXONOMY_PARSER = read_from_json('label-taxonomy.json')
 else:
     import logging
 
     TAXONOMY_PARSER = trellis.utils.TaxonomyParser()
     TAXONOMY_PARSER.read_from_json('label-taxonomy.json')
 
+class OldNodeKinds:
+
+    def __init__(self):
+        """Use to determine which kind of database node should be created.
+        """
+
+        self.match_patterns = {
+            "Blob": [r"^(?P<plate>\w+)/(?P<sample>\w+)/(?P<trellis_task>\w+(?:-*\w*)+)/(?P<trellis_task_id>\w+(?:-\w+)+)/.*"],
+            "Vcf": [
+                    ".*\\.vcf.gz$", 
+                    ".*\\.vcf$",
+            ],
+            "Gvcf": [
+                    ".*\\.g.vcf.gz$",
+                    ".*\\.g.vcf$",
+            ],
+            "Cram": [".*\\.cram$"], 
+            "Bam": [".*\\.bam$"], 
+            "Ubam": [".*\\.ubam$"],
+
+            "Log": [
+                    ".*\\.log$",
+                    ".*\\/stderr$",
+                    ".*\\/stdout$"],
+            "Index": [
+                      ".*\\.bai$",
+                      ".*\\.tbi$",
+                      ".*\\.crai$",
+            ],
+            "Json": [".*\\.json$"],
+            "Fastqc": [".*/bam-fastqc/.*"],
+            "Flagstat": [".*/flagstat/.*"],
+            "Vcfstats": [".*/vcfstats/.*"],
+            "TextToTable": [".*/text-to-table/.*"],
+            "CheckContamination": [".*/call-CheckContamination/.*"],
+        }
+
+        self.label_functions = {
+                                "Blob": [
+                                         trellis_metadata_groupdict,
+                                ],
+                                "Shard": [
+                                          shard_index_name_1,
+                                ],
+                                "Cromwell": [
+                                         cromwell_metadata_groupdict,
+                                ],
+                                "Ubam": [
+                                         read_group_name_1,
+                                ],
+        }
+
+class NodeKinds:
+
+    def __init__(self):
+
+        # Each pattern corresponds to a relationship trigger
+        self.trigger_patterns = {}
+        self.trigger_patterns['RelateSampleToReadGroup'] = [r"/(?P<sample>\w+)/HAS_READ_GROUP/(?P<read_group>\w+)/"]
+        self.trigger_patterns['RelateReadGroupToFastq'] = [r"/(?P<read_group>\w+)/HAS_FASTQ/(?P<sample>[a-zA-Z0-9]+)_(?P<mate_pair>[1-2])\.fastq.gz/"]
 
 def clean_metadata_dict(raw_dict):
     """Remove dict entries where the value is of type dict"""
@@ -273,6 +316,7 @@ def create_blob_node(event, context, test=False):
     bucket_name = event['bucket']
 
     logging.debug(f"> create-blob: Environment: {ENVIRONMENT}.")
+    """DEPRECATED: Use the same configuration for each instance of this function
     if ENVIRONMENT == 'google-cloud':
         # Use bucket name to determine which config file should be used
         # to parse object metadata.
@@ -289,6 +333,7 @@ def create_blob_node(event, context, test=False):
         node_module = importlib.import_module(node_module_name)
     else:
         import test_create_node_config as node_module
+    """
 
     node_kinds = node_module.NodeKinds()
     label_patterns = node_kinds.match_patterns
@@ -321,23 +366,12 @@ def create_blob_node(event, context, test=False):
     # Add standard fields
     name_fields = get_name_fields(
                     event_name = event['name'], 
-                    event_bucket = event['bucket'],
-                    #commit_hash = GIT_COMMIT_HASH,
-                    #version_tag = GIT_VERSION_TAG)
-                    )
+                    event_bucket = event['bucket'])
     time_fields = get_time_fields(event)
 
     query_parameters.update(name_fields)
     query_parameters.update(time_fields)
     logging.info(f"> create-blob: Query parameters: {query_parameters}.")
-
-    # Generate UUID
-    #if not query_parameters.get('trellisUuid') and ENVIRONMENT == 'google-cloud':
-    #    uuid = add_uuid_to_blob(
-    #                            query_parameters['bucket'], 
-    #                            query_parameters['path'])
-    #    logging.info(f"> Object UUID added: {uuid}. Exiting.")
-    #    return # Updating metadata will trigger this function again
 
     # Add trigger operation as metadata property
     query_parameters['triggerOperation'] = TRIGGER_OPERATION
