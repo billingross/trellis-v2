@@ -118,3 +118,30 @@ returns:
     end: DsubJob
 aggregate_results: false
 redundant: false
+--- !DatabaseQuery
+name: mergeFastq
+cypher: 'MERGE (fastq:Fastq {uri: $uri}) ON CREATE SET fastq.basename = $basename, fastq.bucket = $bucket, fastq.dirname = $dirname, fastq.extension = $extension, fastq.name = $name, fastq.filetype = $filetype, fastq.gcsId = $gcsId, fastq.uri = $uri, fastq.path = $path, fastq.crc32c = $crc32c, fastq.size = $size, fastq.timeCreatedIso = $timeCreatedIso, fastq.timeCreatedEpoch = $timeCreatedEpoch, fastq.timeUpdatedIso = $timeUpdatedIso, fastq.timeUpdatedEpoch = $timeUpdatedEpoch, fastq.trellisUuid = $trellisUuid ON MERGE SET fastq.timeUpdatedIso = $timeUpdatedIso, fastq.timeUpdatedEpoch = $timeUpdatedEpoch RETURN fastq'
+required_parameters:
+  basename: str
+  bucket: str
+  dirname: str
+  extension: str
+  name: str
+  filetype: str
+  gcsId: str
+  uri: str
+  path: str
+  crc32c: str
+  size: int
+  timeCreatedIso: str
+  timeCreatedEpoch: int
+  timeUpdatedIso: str
+  timeUpdatedEpoch: int
+  trellisUuid: str
+write_transaction: true
+publish_to:
+  - TOPIC_TRIGGERS
+returns:
+  -
+    start: Fastq
+aggregate
