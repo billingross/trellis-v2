@@ -34,13 +34,6 @@ if ENVIRONMENT == 'google-cloud':
     # Storage client is used for adding UUIDs to blobs
     STORAGE_CLIENT = storage.Client()
 
-    TAXONOMY_PARSER = read_from_json('label-taxonomy.json')
-else:
-    import logging
-
-    TAXONOMY_PARSER = trellis.utils.TaxonomyParser()
-    TAXONOMY_PARSER.read_from_json('label-taxonomy.json')
-
 class OldNodeKinds:
 
     def __init__(self):
