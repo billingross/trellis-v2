@@ -96,7 +96,7 @@ def match_database_queries(event_name, object_metadata):
 
     queries_to_request = {}
     for query, regex_pattern in query_patterns.items():
-        match = re.match(regex_pattern, event_name)
+        match = re.search(regex_pattern, event_name)
         if match:
             query_parameters = match.groupdict()
             query_parameters.update(object_metadata)
