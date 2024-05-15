@@ -95,7 +95,7 @@ def match_database_queries(event_name, object_metadata):
     query_patterns['mergeFastq'] = r"(?P<sample>[a-zA-Z0-9]+)_(?P<mate_pair>[1-2])\.fastq.gz$"
 
     queries_to_request = {}
-    for query, regex_pattern in query_patterns:
+    for query, regex_pattern in query_patterns.items():
         match = re.match(regex_pattern, event_name)
         if match:
             query_parameters = match.groupdict()
