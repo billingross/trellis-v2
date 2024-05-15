@@ -27,7 +27,6 @@ if ENVIRONMENT == 'google-cloud':
     import logging
 
     FUNCTION_NAME = os.environ['K_SERVICE']
-    TRIGGER_OPERATION = os.environ['TRIGGER_OPERATION']
     PROJECT_ID = os.environ['PROJECT_ID']
     TOPIC_DB_QUERY = os.environ['TOPIC_DB_QUERY']
 
