@@ -144,4 +144,5 @@ publish_to:
 returns:
   -
     start: Fastq
-aggregate
+aggregate_results: false
+redundant: false
