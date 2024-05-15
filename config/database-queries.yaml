@@ -120,7 +120,7 @@ aggregate_results: false
 redundant: false
 --- !DatabaseQuery
 name: mergeFastq
-cypher: 'MERGE (fastq:Fastq {uri: $uri}) ON CREATE SET fastq.basename = $basename, fastq.bucket = $bucket, fastq.dirname = $dirname, fastq.extension = $extension, fastq.name = $name, fastq.filetype = $filetype, fastq.gcsId = $gcsId, fastq.uri = $uri, fastq.path = $path, fastq.crc32c = $crc32c, fastq.size = toInteger($size), fastq.timeCreatedIso = $timeCreatedIso, fastq.timeCreatedEpoch = toInteger($timeCreatedEpoch), fastq.timeUpdatedIso = $timeUpdatedIso, fastq.timeUpdatedEpoch = toInteger($timeUpdatedEpoch), fastq.trellisUuid = $trellisUuid ON MERGE SET fastq.timeUpdatedIso = $timeUpdatedIso, fastq.timeUpdatedEpoch = toInteger($timeUpdatedEpoch) RETURN fastq'
+cypher: 'MERGE (fastq:Fastq {uri: $uri}) ON CREATE SET fastq.basename = $basename, fastq.bucket = $bucket, fastq.dirname = $dirname, fastq.extension = $extension, fastq.name = $name, fastq.filetype = $filetype, fastq.gcsId = $gcsId, fastq.uri = $uri, fastq.path = $path, fastq.crc32c = $crc32c, fastq.size = toInteger($size), fastq.timeCreatedIso = $timeCreatedIso, fastq.timeCreatedEpoch = toInteger($timeCreatedEpoch), fastq.timeUpdatedIso = $timeUpdatedIso, fastq.timeUpdatedEpoch = toInteger($timeUpdatedEpoch), fastq.trellisUuid = $trellisUuid ON MATCH SET fastq.timeUpdatedIso = $timeUpdatedIso, fastq.timeUpdatedEpoch = toInteger($timeUpdatedEpoch) RETURN fastq'
 required_parameters:
   basename: str
   bucket: str
