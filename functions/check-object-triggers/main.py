@@ -92,7 +92,7 @@ def match_database_queries(event_name, object_metadata):
     query_patterns['relatePlateToSample'] = r"/(?P<plate>\w+)/HAS_SAMPLE/(?P<sample>[a-zA-Z0-9]+)/"
     query_patterns['relateSampleToReadGroup'] = r"/(?P<sample>\w+)/HAS_READ_GROUP/(?P<read_group>\w+)/"
     query_patterns['relateReadGroupToFastq'] = r"/(?P<read_group>\w+)/HAS_FASTQ/(?P<sample>[a-zA-Z0-9]+)_(?P<mate_pair>[1-2])\.fastq.gz$"
-    query_pattern['mergeFastq'] = r"(?P<sample>[a-zA-Z0-9]+)_(?P<mate_pair>[1-2])\.fastq.gz$"
+    query_patterns['mergeFastq'] = r"(?P<sample>[a-zA-Z0-9]+)_(?P<mate_pair>[1-2])\.fastq.gz$"
 
     queries_to_request = {}
     for query, regex_pattern in query_patterns:
