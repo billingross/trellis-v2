@@ -36,7 +36,7 @@ if ENVIRONMENT == 'google-cloud':
 
     triggers_file = '1000-genomes-triggers.yaml'
     with open(triggers_file, 'r') as file_handle:
-        OBJECT_TRIGGERS = yaml.safe_load(trigger_file)
+        OBJECT_TRIGGERS = yaml.safe_load(file_handle)
 
 class OldNodeKinds:
 
