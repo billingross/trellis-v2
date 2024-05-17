@@ -90,7 +90,7 @@ class OldNodeKinds:
                                 ],
         }
 
-def match_database_queries(event_name, object_metadata, object_triggers):
+def match_object_triggers(event_name, object_metadata, object_triggers):
     # DEPRECATED: define trigger patterns in separate YAML file
     # Define query patterns
     #query_patterns = {}
@@ -122,7 +122,10 @@ def check_object_triggers(event, context, test=False):
     seed_id = context.event_id
 
     logging.info(f"> check-object-triggers: Matching database query patterns.")
-    queries_to_request = match_database_queries(event['name'], event['metadata'])
+    queries_to_request = match_object_triggers(
+                                               event_name = event['name'], 
+                                               object_metadata = event['metadata'],
+                                               object_triggers = OBJECT_TRIGGERS)
 
     logging.info(f"> check-object-triggers: Object matched {len(queries_to_request)} query patterns.")
     for query_name, parameters in queries_to_request.items():
