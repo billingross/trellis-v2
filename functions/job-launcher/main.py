@@ -65,7 +65,6 @@ def create_dsub_job_args(job_configuration):
     dsub_args = [
         "--name", job_configuration['name'],
         "--label", f"job-request-id={job_configuration['job_request_id']}",
-
         "--project", job_configuration["project"],
         "--min-cores", job_configuration['virtual_machine.min_cores'], 
         "--min-ram", job_configuration['virtual_machine.min_ram'],

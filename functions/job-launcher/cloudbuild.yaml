@@ -21,8 +21,6 @@ steps:
          '--gen2',
          '--trigger-topic=${_TRIGGER_TOPIC}',
          '--update-env-vars=PROJECT_ID=${PROJECT_ID}',
-         '--update-env-vars=CREDENTIALS_BUCKET=${_CREDENTIALS_BUCKET}',
-         '--update-env-vars=CREDENTIALS_BLOB=${_CREDENTIALS_BLOB}',
          '--update-env-vars=ENVIRONMENT=${_ENVIRONMENT}',
          '--update-env-vars=ENABLE_JOB_LAUNCH=${_ENABLE_JOB_LAUNCH}',
          '--update-env-vars=JOB_LOGS_BUCKET=${_JOB_LOGS_BUCKET}',
