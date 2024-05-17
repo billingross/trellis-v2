@@ -34,6 +34,10 @@ if ENVIRONMENT == 'google-cloud':
     # Storage client is used for adding UUIDs to blobs
     STORAGE_CLIENT = storage.Client()
 
+    triggers_file = '1000-genomes-triggers.yaml'
+    with open(trigger_file, 'r') as file_handle:
+        OBJECT_TRIGGERS = yaml.safe_load(trigger_file)
+
 class OldNodeKinds:
 
     def __init__(self):
@@ -86,16 +90,17 @@ class OldNodeKinds:
                                 ],
         }
 
-def match_database_queries(event_name, object_metadata):
+def match_database_queries(event_name, object_metadata, object_triggers):
+    # DEPRECATED: define trigger patterns in separate YAML file
     # Define query patterns
-    query_patterns = {}
-    query_patterns['relatePlateToSample'] = r"/(?P<plate>\w+)/HAS_SAMPLE/(?P<sample>[a-zA-Z0-9]+)/"
-    query_patterns['relateSampleToReadGroup'] = r"/(?P<sample>\w+)/HAS_READ_GROUP/(?P<read_group>\w+)/"
-    query_patterns['relateReadGroupToFastq'] = r"/(?P<read_group>\w+)/HAS_FASTQ/(?P<sample>[a-zA-Z0-9]+)_(?P<mate_pair>[1-2])\.fastq.gz$"
-    query_patterns['mergeFastq'] = r"(?P<sample>[a-zA-Z0-9]+)_(?P<mate_pair>[1-2])\.fastq.gz$"
+    #query_patterns = {}
+    #query_patterns['relatePlateToSample'] = r"/(?P<plate>\w+)/HAS_SAMPLE/(?P<sample>[a-zA-Z0-9]+)/"
+    #query_patterns['relateSampleToReadGroup'] = r"/(?P<sample>\w+)/HAS_READ_GROUP/(?P<read_group>\w+)/"
+    #query_patterns['relateReadGroupToFastq'] = r"/(?P<read_group>\w+)/HAS_FASTQ/(?P<sample>[a-zA-Z0-9]+)_(?P<mate_pair>[1-2])\.fastq.gz$"
+    #query_patterns['mergeFastq'] = r"(?P<sample>[a-zA-Z0-9]+)_(?P<mate_pair>[1-2])\.fastq.gz$"
 
     queries_to_request = {}
-    for query, regex_pattern in query_patterns.items():
+    for query, regex_pattern in object_triggers.items():
         match = re.search(regex_pattern, event_name)
         if match:
             query_parameters = match.groupdict()
