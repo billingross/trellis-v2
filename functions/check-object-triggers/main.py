@@ -127,7 +127,7 @@ def check_object_triggers(event, context, test=False):
                                                object_metadata = event['metadata'],
                                                object_triggers = OBJECT_TRIGGERS)
 
-    logging.info(f"> check-object-triggers: Object matched {len(queries_to_request)} query patterns.")
+    logging.info(f"> check-object-triggers: Object matched {len(queries_to_request)} trigger patterns: {queries_to_request.keys()}.")
     for query_name, parameters in queries_to_request.items():
         # Create query request
         query_request = trellis.QueryRequestWriter(
