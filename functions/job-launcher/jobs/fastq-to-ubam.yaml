@@ -13,7 +13,7 @@ virtual_machine:
   image: us.gcr.io/broad-gatk/gatk:4.2.0.0
 dsub:
   user: trellis
-  provider: google-v2
+  provider: batch
   regions: ${JOB_REGIONS}
   logging: "gs://${JOB_LOGS_BUCKET}/fastq-to-ubam/${jobRequestId}/logs"
   inputs:

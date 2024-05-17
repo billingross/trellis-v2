@@ -158,12 +158,9 @@ def launch_job(event, context):
         dsub_args.append("--dry-run")
     
     # Launch dsub job
-    """Commenting this all out for development
     logging.info(f"> job-launcher: Launching dsub with args: {dsub_args}.")
     dsub_result = launch_dsub_task(dsub_args)
     logging.info(f"> job-launcher: Dsub result: {dsub_result}.")
-    """
-    dsub_result = {'job-id': 'test'}
 
     # Disable: EnvYAML does not support item assignment.
     if 'job-id' in dsub_result.keys():
